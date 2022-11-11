@@ -1,0 +1,74 @@
+.folder
+  display: flex
+  flex-direction: column
+  min-width: 180px
+  height: 155px
+  background: #282828
+  border-radius: 5px
+  margin-right: 24px
+  padding: 10px 18px 0 10px
+  box-sizing: border-box
+  .folder-info
+    display: flex
+    justify-content: space-between
+    margin-bottom: 10px
+    .folder-count
+      display: flex
+      justify-content: center
+      align-items: center
+      font-size: 0.8em
+      font-weight: 400
+      width: 30px
+      height: 30px
+      background: #333333
+      border-radius: 5px
+      color: rgba(255, 255, 255, 0.7)
+    .folder-settings
+      display: flex
+      flex-direction: column
+      align-items: end
+      //background: red
+      width: 70%
+      .ovals
+        cursor: pointer
+        .oval
+          width: 4px
+          height: 4px
+          background: #434343
+          border-radius: 100%
+          margin-bottom: 4px // кроме последнего?
+
+      .settings-items
+        width: 100%
+        margin-bottom: -30px
+        margin-right: -50px
+        z-index: 999
+        background: #434343
+        display: none
+        .settings-item
+          cursor: pointer
+          display: flex
+          justify-content: center
+          align-items: center
+          height: 30px
+
+  .folder-image
+    cursor: pointer
+    align-self: center
+    width: 50px
+    height: 42px
+    background: url("../../../public/images/folder.svg")
+    margin-bottom: 16px
+  .folder-name
+    align-self: center
+    font-size: 0.9em
+    //font-weight: 600
+  &:hover
+    transition: 0.5s
+    background: #333333
+    .folder-count
+      transition: 0.5s
+      background: #434343
+    .folder-image
+      transition: 0.5s
+      background: url("../../../public/images/folder-active.svg")

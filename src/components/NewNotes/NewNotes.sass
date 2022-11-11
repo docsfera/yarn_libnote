@@ -1,0 +1,36 @@
+.notes-section
+  width: 65vw
+  font-family: Inter
+  font-weight: 600
+  color: white
+  .notes-wrapper
+    display: flex
+    justify-content: space-between
+
+    .name-section
+      color: white
+      text-decoration: none
+      font-size: 1.5em
+      margin-bottom: 6px
+      &:hover
+        transition: 0.5s
+        opacity: 0.8
+    .section-count
+      font-size: 0.8em
+      opacity: 0.5
+      padding-bottom: 30px
+    .create-note
+      display: flex
+      justify-content: center
+      align-items: center
+      height: 45px
+      width: 220px
+      background: #333333
+      border-radius: 5px
+      font-size: 14px //TODO: em
+      font-weight: 400
+      cursor: pointer
+
+  .notes
+    &:last-child
+      margin-bottom: 50px
