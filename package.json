@@ -2,6 +2,7 @@
   "name": "libnote",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:3001/",
   "dependencies": {
     "@apollo/client": "^3.7.1",
     "@testing-library/jest-dom": "^5.14.1",
@@ -36,17 +37,24 @@
     "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"
   },
+
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "cd src/server && node --loader ts-node/esm app.ts --ignore client"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
     ]
+  },
+  "type": "module",
+  "compilerOptions": {
+    "isolatedModules": true,
+    "module": "nodenext"
   },
   "browserslist": {
     "production": [

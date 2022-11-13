@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import "./Main.sass"
 import Header from "../Header/Header"
 import Folders from "../Folders/Folders"
@@ -33,6 +33,9 @@ const Main = () => {
     const {userInfo} = React.useContext(AuthContext)
     //@ts-ignore
     const {onLogout} = React.useContext(AuthContext)
+    const [isShowSmokeWindow, setIsShowSmokeWindow] = useState(false)
+
+    const changeIsShowSmokeWindow = () => setIsShowSmokeWindow(!isShowSmokeWindow)
 
 
 
@@ -40,16 +43,23 @@ const Main = () => {
 
     const getAllNotesQuery = useQuery(GET_ALL_NOTES, {variables: {userid: userInfo.id}})
     const smokeWindow = useRef<HTMLDivElement>(null)
-    useEffect(() => {
-        if(smokeWindow && smokeWindow.current){
-            smokeWindow.current.style.height = `${smokeWindow.current.ownerDocument.body.offsetHeight}px`
-        }
-    },[smokeWindow, smokeWindow.current])
 
     useEffect(() => {getAllNotesQuery.refetch()}, [])
     const numOfNotes: any = (getAllNotesQuery.data && getAllNotesQuery.data.getAllNotes) && getAllNotesQuery.data.getAllNotes.length
     console.log(getAllNotesQuery.data)
     //TODO: как типизировать data, data.getAllNotes?
+
+    const hideSmokeWindow = () => {
+        if(smokeWindow && smokeWindow.current){
+            smokeWindow.current.style.display = "none"
+        }
+    }
+    const showSmokeWindow = () => {
+        if(smokeWindow && smokeWindow.current){
+            smokeWindow.current.style.height = `${smokeWindow.current.ownerDocument.body.offsetHeight}px`
+            smokeWindow.current.style.display = "block"
+        }
+    }
 
 
 
@@ -61,7 +71,10 @@ const Main = () => {
                 <button onClick={onLogout}> 555</button>
                 <div ref={smokeWindow} className="smoke"> </div>
 
-                <Folders numOfNotes={numOfNotes} smokeWindow={smokeWindow} userInfo={userInfo}/>
+                <Folders numOfNotes={numOfNotes}
+                         userInfo={userInfo}
+                         showSmokeWindow={showSmokeWindow}
+                         hideSmokeWindow={hideSmokeWindow}/>
                 <NewBooks/>
                 <NewNotes getAllNotesQuery={getAllNotesQuery}/>
             </div>

@@ -50,13 +50,14 @@ const PdfViewer = () => {
         }
 
         const container = containerRef.current
-
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js"
+        const WORKER_URL = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+        pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER_URL //"https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js"
         const CMAP_URL = "node_modules/pdfjs-dist/cmaps/" //"pdfjs-dist/cmaps/"
         const CMAP_PACKED = true
         //let DEFAULT_URL = "../../files/somefile5.pdf"
         //console.log((data && data.getBookById) && `http://localhost:3000/files/${id}/${data.getBookById.name}`)
         let DEFAULT_URL = `http://localhost:3000/files/${userId}/${state.name}`
+        console.log({DEFAULT_URL})
         const SEARCH_FOR = ""; // try 'Mozilla'
         const eventBus = new pdfjsViewer.EventBus()
 

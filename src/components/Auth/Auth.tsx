@@ -51,7 +51,6 @@ const Auth: React.FC<AuthType> = (props) => {
     }
 
     return (
-        <>
             <div className="auth-inputs">
                 <p className="name-section">Вход</p>
                 <div className="input-section">
@@ -74,7 +73,6 @@ const Auth: React.FC<AuthType> = (props) => {
                 <p className="auth-wrap" onClick={props.changeAuthType}>Регистрация</p>
 
             </div>
-        </>
     );
 };
 

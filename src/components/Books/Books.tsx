@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import "./Books.sass"
 import Header from "../Header/Header";
+import pdfjs from "pdfjs-dist"
 import {gql, useMutation, useQuery} from "@apollo/client"
 import {useNavigate} from "react-router-dom"
 import Book from "../Book/Book";
@@ -35,8 +36,8 @@ const GET_ALL_BOOKS = gql`
 `
 
 const SAVE_BASE_64 = gql`
-    mutation($base64: String, $bookId: ID){
-        saveBase64(base64: $base64, bookId: $bookId) {
+    mutation($base64: String, $bookId: ID, $userId: ID){
+        saveBase64(base64: $base64, bookId: $bookId, userId: $userId) {
             id
 
         }
@@ -57,6 +58,12 @@ const Books: React.FC<BooksType> = (props) => {
     console.log(data)
 
     const refCanvas = useRef(null)
+    const smokeWindow = useRef<HTMLDivElement>(null) // TODO: create component
+    useEffect(() => {
+        if(smokeWindow && smokeWindow.current){
+            smokeWindow.current.style.height = `${smokeWindow.current.ownerDocument.body.offsetHeight}px`
+        }
+    },[smokeWindow, smokeWindow.current])
 
     useEffect(() => {
         if(data && data.getAllBooks) {
@@ -64,6 +71,9 @@ const Books: React.FC<BooksType> = (props) => {
             data.getAllBooks.map((i: any, index: any) => {
                 if (!i.image) {
                     let bookUrl = `http://localhost:3000/files/${props.userInfo.id}/${i.utfname}`
+                    console.log(bookUrl)
+
+
                     setCanvas(refCanvas, bookUrl, i.id)
                 }
             })
@@ -71,8 +81,10 @@ const Books: React.FC<BooksType> = (props) => {
     }, [data, refCanvas])
 
     const setCanvas = (refCanvas: any, bookUrl: string, bookId: string) => {
+        console.log({bookUrl})
+        const WORKER_URL = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js"
+        pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER_URL//"https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js"
         let loadingTask = pdfjsLib.getDocument(bookUrl)
 
         loadingTask.promise.then((pdfDocument: any) => {
@@ -89,7 +101,7 @@ const Books: React.FC<BooksType> = (props) => {
 
                     renderTask.promise.then(async () => {
                         let base64image = canvas.toDataURL("image/png")
-                        await saveBase64({variables: {base64: base64image, bookId: bookId} })
+                        await saveBase64({variables: {base64: base64image, bookId: bookId, userId: props.userInfo.id} })
                         // html2canvas(document.getElementById("pageContainer")).then((canvas) => {
                         //     let base64image = canvas.toDataURL("image/png")
                         // })
@@ -108,6 +120,21 @@ const Books: React.FC<BooksType> = (props) => {
     const pimp = (name: string) => {
         navigate(`../pdf-viewer/${props.userInfo.id}`, {state: {name}}) // TODO: useQuery(getBookByID)???
     }
+
+    // const exitFromCreateFolderWindow = () => {
+    //     if(createFolderWindow && createFolderWindow.current && props.smokeWindow && props.smokeWindow.current){
+    //         createFolderWindow.current.style.display = "none"
+    //         props.smokeWindow.current.style.display = "none"
+    //         setNameCreatedFolder("")
+    //     }
+    // }
+    //
+    // const showCreateFolderWindow = () => {
+    //     if(createFolderWindow && createFolderWindow.current && props.smokeWindow && props.smokeWindow.current){
+    //         createFolderWindow.current.style.display = "flex"
+    //         props.smokeWindow.current.style.display = "block"
+    //     }
+    // }
 
     const uploadFile = (file: any) => {
         let formData = new FormData()
@@ -144,11 +171,25 @@ const Books: React.FC<BooksType> = (props) => {
     const go = () => (dropArea && dropArea.current) && dropArea.current.classList.add('highlight')
     const gone = () => (dropArea && dropArea.current) && dropArea.current.classList.remove('highlight')
 
+    const showBookSettings = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        e.stopPropagation()
+        navigate(`../book-settings/1`)
+    }
+
     return (
         <div>
             <Header/>
             <div className="books">
-                {data && data.getAllBooks.map((i:any) => <Book name={i.name} UTFName={i.utfname} pimp={pimp} imageName={i.image} />)}
+                {/*<div ref={smokeWindow} className="smoke"> </div>*/}
+                {data && data.getAllBooks.map((i: any) =>
+
+                    <Book name={i.name}
+                          UTFName={i.utfname}
+                          userId={props.userInfo.id}
+                          pimp={pimp}
+                          imageName={i.image}
+                          showBookSettings={showBookSettings}/>)
+                }
                 <div id="drop-area"
                      ref={dropArea}
                      onDragEnter={go}

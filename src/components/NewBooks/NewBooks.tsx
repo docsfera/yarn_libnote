@@ -49,7 +49,7 @@ const NewBooks = () => {
                     <div ref={gg} className="itemser">
                         {data && data.getAllBooks.map((i:any) =>
                             i.image
-                                ? <img src={`/files/1/${i.image}`}
+                                ? <img src={`/files/${userInfo.id}/${i.image}`}
                                  alt=""
                                  key={i.id}
                                  className="image"

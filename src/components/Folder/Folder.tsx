@@ -32,7 +32,7 @@ const Folder: React.FC<folderType> = (props) => {
 //нельзя убирать, еще нужен будет для перехода к папке
 // const { loading, data, error} = useQuery(GGGG, {variables: {folderid: props.folder.id}})
 
-    console.log({"Folder": props})
+    //console.log({"Folder": props})
 
     const settingsItems = useRef<HTMLDivElement>(null)
 

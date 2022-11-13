@@ -45,10 +45,10 @@ const Registration: React.FC<RegistrationType> = (props) => {
         })
             .then(res => res.json())
             .then(async errors =>  {
-                setErrorMessage(errors)
-                errors.includes("Login") && setIsLoginError(true)
-                errors.includes("Password") && setIsPasswordError(true)
-                if(errors.includes("ok")) {
+                setErrorMessage(errors.message)
+                errors.message.includes("Login") && setIsLoginError(true)
+                errors.message.includes("Password") && setIsPasswordError(true)
+                if(errors.message.includes("ok")) {
                     setErrorMessage("")
                     await createUser({variables: {input: {mail: userName, password: userPassword}}})
                      .then((res) => {
@@ -63,7 +63,6 @@ const Registration: React.FC<RegistrationType> = (props) => {
     }
 
     return (
-        <>
             <div className="auth-inputs">
                 <p className="name-section">Регистрация</p>
                 <div className="input-section">
@@ -96,7 +95,6 @@ const Registration: React.FC<RegistrationType> = (props) => {
 
 
             </div>
-        </>
     );
 };
 

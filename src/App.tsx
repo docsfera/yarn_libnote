@@ -12,6 +12,7 @@ import PdfViewer from "./components/PdfViewer/PdfViewer";
 import {gql, useQuery} from "@apollo/client";
 import AuthProvider, {AuthContext} from "./AuthProvider"
 import Header from "./components/Header/Header";
+import BookSettings from "./components/BookSettings/BookSettings";
 
 const GET_USER_BY_ID = gql`
     query getUserById($id: ID) {
@@ -36,7 +37,7 @@ function App() {
       <AuthProvider>
         <AuthContext.Consumer>
 
-          {value => value.userInfo.token ?
+          {value => value.userInfo.id ?
               <div className="App">
                 <Aside/>
                 {/*<Header/>*/}
@@ -48,6 +49,8 @@ function App() {
                   <Route path='/note-creator' element={<NoteCreator />}/>
                   <Route path='/note-creator/:id' element={<NoteCreator />}/>
                   <Route path='/folder-notes/:id' element={<FolderNotes />}/>
+                  <Route path='/book-settings/:id' element={<BookSettings />}/>
+
                   {/*<Route path='/auth' element={<AuthWrapper />}/>*/}
 
                 </Routes>

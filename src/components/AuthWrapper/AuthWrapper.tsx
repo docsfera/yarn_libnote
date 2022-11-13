@@ -13,8 +13,6 @@ const AuthWrapper = () => {
         setIsShowRegistration(!isShowRegistration)
     }
 
-
-
     return (
         <div className="auth">
             <div className="auth-image"> </div>

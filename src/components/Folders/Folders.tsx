@@ -4,6 +4,7 @@ import Arrow from "../Arrow/Arrow"
 import "./Folders.sass"
 import {gql, useMutation, useQuery} from "@apollo/client";
 import {NavLink, useNavigate} from "react-router-dom"
+import FolderCreateWindow from "../FolderCreateWindow/FolderCreateWindow";
 
 
 const GET_ALL_FOLDERS = gql`
@@ -37,7 +38,8 @@ const CREATE_FOLDER = gql`
 
 type FoldersType = {
     numOfNotes: any
-    smokeWindow: any
+    hideSmokeWindow: any
+    showSmokeWindow: any
     userInfo: any
 }
 
@@ -48,16 +50,12 @@ const Folders: React.FC<FoldersType> = (props) => {
 
     //const authContext = React.useContext(AuthContext)
 
-    console.log({haha: props.userInfo.id})
-
-
 
 
     const [createFolder] = useMutation(CREATE_FOLDER)
+    const [isShowFolderCreator, setIsShowFolderCreator] = useState(false)
+    const changeIsShowFolderCreator = () => setIsShowFolderCreator(!isShowFolderCreator)
     const { loading, data, error, refetch} = useQuery(GET_ALL_FOLDERS, {variables: {userid: props.userInfo.id}})
-
-    const createFolderWindow = useRef<HTMLDivElement>(null)
-
 
     const [position, setPosition] = useState(0)
     const [nameCreatedFolder, setNameCreatedFolder] = useState("")
@@ -67,21 +65,17 @@ const Folders: React.FC<FoldersType> = (props) => {
     }
 
     const exitFromCreateFolderWindow = () => {
-        if(createFolderWindow && createFolderWindow.current && props.smokeWindow && props.smokeWindow.current){
-            createFolderWindow.current.style.display = "none"
-            props.smokeWindow.current.style.display = "none"
-            setNameCreatedFolder("")
-        }
+        setIsShowFolderCreator(false)
+        props.hideSmokeWindow()
+        setNameCreatedFolder("")
     }
 
     const showCreateFolderWindow = () => {
-        if(createFolderWindow && createFolderWindow.current && props.smokeWindow && props.smokeWindow.current){
-            createFolderWindow.current.style.display = "flex"
-            props.smokeWindow.current.style.display = "block"
-        }
+            changeIsShowFolderCreator()
+            props.showSmokeWindow()
     }
     const createFolderEvent = async () => {
-        if(createFolderWindow && createFolderWindow.current && props.smokeWindow && props.smokeWindow.current) {
+        //if(createFolderWindow && createFolderWindow.current && props.smokeWindow && props.smokeWindow.current) {
             await createFolder(
                 {
                     variables: {
@@ -92,11 +86,13 @@ const Folders: React.FC<FoldersType> = (props) => {
                         }
                     }
                 })
-            createFolderWindow.current.style.display = "none"
-            props.smokeWindow.current.style.display = "none"
+            //createFolderWindow.current.style.display = "none"
+            setIsShowFolderCreator(false)
+            //props.smokeWindow.current.style.display = "none"
+            props.hideSmokeWindow()
             setNameCreatedFolder("")
             refetch()
-        }
+        //}
     }
 
     let folderCount
@@ -116,24 +112,10 @@ const Folders: React.FC<FoldersType> = (props) => {
 
     return (
         <div className="folders-section" ref={folderSection}>
-            {/*<div ref={smokeWindow} className="smoke">*/}
-                <div ref={createFolderWindow} className="folder-create-window">
-                    <div className="exit-icon" onClick={exitFromCreateFolderWindow}> </div>
-                    <p className="name-window">Создать папку</p>
-                    <p className="name-folder">Название папки</p>
-                    <input type="text"
-                           className="input-name-folder"
-                           placeholder="Введите название папки"
-                           value={nameCreatedFolder}
-                           onChange={(e) => setNameCreatedFolder(e.target.value)}
-                    />
-                    <div className="buttons">
-                        <button className="button button-exit" onClick={exitFromCreateFolderWindow}>Отмена</button>
-                        <button className="button button-create" onClick={createFolderEvent}>Создать</button>
-                    </div>
-
-                </div>
-            {/*</div>*/}
+            {isShowFolderCreator && <FolderCreateWindow exitFromCreateFolderWindow={exitFromCreateFolderWindow}
+                                                        createFolderEvent={createFolderEvent}
+                                                        nameCreatedFolder={nameCreatedFolder}
+                                                        setNameCreatedFolder={setNameCreatedFolder}/>}
 
             <div className="folders-wrapper">
                 <div className="folders-info">
@@ -144,7 +126,6 @@ const Folders: React.FC<FoldersType> = (props) => {
                     Создать папку
                 </div>
             </div>
-
 
             <div className="folders">
                 <Arrow gg={gg}
