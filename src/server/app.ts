@@ -99,6 +99,7 @@ const schema = buildSchema(`
         getAllFolders(userid: ID): [Folder]
         getAllBooks(userid: ID): [Book]
         getNotesByFolder(folderid: ID): [Note] 
+        getNotesByBookId(id: ID): [Note]
         
         getUserPasswordByLogin(input: UserInput): User
         
@@ -111,11 +112,12 @@ const schema = buildSchema(`
         createUser(input: UserInput): User
         createNote(input: NoteInput): Note
         deleteNoteById(noteid: ID): Note
-        deleteBookById(id: ID): Book
+        deleteBookById(id: ID, userId: ID): Book
         deleteFolderById(id: ID): Folder
         updateFolderName(id: ID, name: String): Folder
         updateFolderCountNotes(folderid: ID, mode: String): Folder
         updateNote(input: NoteInput): Note
+        updateBookName(id: ID, name: String): Book
         
         downloadBook(file: Upload!) : Book
         saveBase64(base64: String, bookId: ID, userId: ID): Book
@@ -209,12 +211,24 @@ const root = {
                 }
                 return res.rows[0]
             })
+    ,
 
-    ,
-    deleteBookById: async ({id}: any) => await pool.query('DELETE FROM books WHERE id = ($1) RETURNING *'
-        , [+id])
-        .then((res: { rows: any[] }) => res.rows[0])
-    ,
+    deleteBookById: async ({id, userId}: any) => {
+        const bookNameUTF = await pool.query('SELECT utfname FROM books WHERE id = ($1)',
+            [+id]).then((res: { rows: { utfname: any }[] }) => res.rows[0].utfname)
+
+        await pool.query('UPDATE notes SET bookid = ($2) WHERE bookid = ($1)',
+            [+id, null]).then((res: { rows: any[] }) => res.rows)
+
+        //TODO: delete image!
+
+        await pool.query('DELETE FROM books WHERE id = ($1) RETURNING *', [+id])
+            .then(res => {
+                fs.unlinkSync(path.join('D:/libnote/libnote/public/files', userId, bookNameUTF))
+                return res
+            })
+            .then((res: { rows: any[] }) => res.rows[0])
+    },
 
     deleteFolderById: async ({id}: any) => { //TODO: doent send response
         await pool.query('UPDATE notes SET folderid = null WHERE folderid = ($1)', [+id])
@@ -256,8 +270,10 @@ const root = {
                 , [countofnotes + 1, +folderid])
         }
     }
-
-
+    ,
+    updateBookName: async ({id, name}: any) =>
+        await pool.query('UPDATE books SET name = ($2) WHERE id = ($1) RETURNING *', [+id, name])
+            .then((res: { rows: any[] }) => res.rows[0])
 
     ,
     getAllFolders: async ({userid}: any) => await pool.query('SELECT * FROM folders WHERE userid = ($1)'
@@ -266,6 +282,9 @@ const root = {
     ,
     getNotesByFolder: async ({folderid}: any) => await pool.query('SELECT * FROM notes WHERE folderid = ($1)'
         , [+folderid]).then((res: { rows: any }) => res.rows)
+    ,
+    getNotesByBookId: async ({id}: any) => await pool.query('SELECT * FROM notes WHERE bookid = ($1)'
+        , [+id]).then((res: { rows: any }) => res.rows)
     ,
 
     downloadBook: (file: UploadedFile | undefined | null, userId: string, fileName: string, UTFName: string) => {

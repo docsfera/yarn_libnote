@@ -2,6 +2,7 @@ import React, {useRef} from 'react'
 import "./Book.sass"
 
 type BookType = {
+    id: any
     name: string
     UTFName: string
     userId: string
@@ -13,7 +14,11 @@ type BookType = {
 const Book: React.FC<BookType> = (props) => {
     return (
         <div className="book" onClick={() => props.pimp(props.UTFName)}>
-            <div className="book-settings" onClick={e => props.showBookSettings(e)}> </div>
+            <img src="/images/book-settings.png"
+                 className="book-settings"
+                 onClick={e => props.showBookSettings(e, props.id)}>
+            </img>
+
             {props.imageName
                 ? <img src={`/files/${props.userId}/${props.imageName}`} alt="" className="image"/>
                 :  <img src={"/images/non-found-book.png"} alt="" className="image"/>}

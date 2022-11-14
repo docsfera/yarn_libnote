@@ -373,7 +373,7 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
                 <div className="note-info">
 
                     <p className="note-name" contentEditable="true" suppressContentEditableWarning={true}
-                       onBlur={(e) => blurNoteNameEvent(e.target.innerHTML)}>{reductStr(noteName)}</p>
+                       onBlur={(e) => blurNoteNameEvent(e.target.innerHTML)}>{reductStr(noteName)}</p> {/*TODO: are you sure?*/}
                     <div ref={noteContentRef} className="note-content" contentEditable="true" suppressContentEditableWarning={true}
                          onBlur={ (e) => blurNoteContentEvent((e.target.innerHTML))}>
 

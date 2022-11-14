@@ -51,11 +51,8 @@ const Books: React.FC<BooksType> = (props) => {
     //@ts-ignore
     const cyrillicToTranslit = new CyrillicToTranslit()
     const [mut] = useMutation(GG)
-    //const [refences, setRefences] = useState([])
     const {data, refetch} = useQuery(GET_ALL_BOOKS, {variables:{userid: props.userInfo.id}, pollInterval: 500})
     const [saveBase64] = useMutation(SAVE_BASE_64)
-
-    console.log(data)
 
     const refCanvas = useRef(null)
     const smokeWindow = useRef<HTMLDivElement>(null) // TODO: create component
@@ -67,13 +64,9 @@ const Books: React.FC<BooksType> = (props) => {
 
     useEffect(() => {
         if(data && data.getAllBooks) {
-            console.log(data.getAllBooks)
             data.getAllBooks.map((i: any, index: any) => {
                 if (!i.image) {
                     let bookUrl = `http://localhost:3000/files/${props.userInfo.id}/${i.utfname}`
-                    console.log(bookUrl)
-
-
                     setCanvas(refCanvas, bookUrl, i.id)
                 }
             })
@@ -171,9 +164,9 @@ const Books: React.FC<BooksType> = (props) => {
     const go = () => (dropArea && dropArea.current) && dropArea.current.classList.add('highlight')
     const gone = () => (dropArea && dropArea.current) && dropArea.current.classList.remove('highlight')
 
-    const showBookSettings = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const showBookSettings = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, bookId: string) => {
         e.stopPropagation()
-        navigate(`../book-settings/1`)
+        navigate(`../book-settings/${bookId}`)
     }
 
     return (
@@ -182,13 +175,16 @@ const Books: React.FC<BooksType> = (props) => {
             <div className="books">
                 {/*<div ref={smokeWindow} className="smoke"> </div>*/}
                 {data && data.getAllBooks.map((i: any) =>
-
-                    <Book name={i.name}
-                          UTFName={i.utfname}
-                          userId={props.userInfo.id}
-                          pimp={pimp}
-                          imageName={i.image}
-                          showBookSettings={showBookSettings}/>)
+                    <Book
+                        key={i.id}
+                        id={i.id}
+                        name={i.name}
+                        UTFName={i.utfname}
+                        userId={props.userInfo.id}
+                        pimp={pimp}
+                        imageName={i.image}
+                        showBookSettings={showBookSettings}
+                    />)
                 }
                 <div id="drop-area"
                      ref={dropArea}
