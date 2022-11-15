@@ -119,6 +119,9 @@ const schema = buildSchema(`
         updateNote(input: NoteInput): Note
         updateBookName(id: ID, name: String): Book
         
+        updateUserName(id: ID, name: String): User
+        updateUserPassword(id: ID, password: String): User
+        
         downloadBook(file: Upload!) : Book
         saveBase64(base64: String, bookId: ID, userId: ID): Book
        
@@ -138,9 +141,10 @@ const root = {
     getAllUsers: async () => await pool.query('SELECT * FROM users')
         .then((res: { rows: any }) => res.rows)
     ,
-    getUserById: async (params: any) => await pool.query('SELECT * FROM users WHERE id = ($1)'
-        , [params.id])
-        .then((res: { rows: any[] }) => res.rows[0])
+    getUserById: async (params: any) =>
+        await pool.query('SELECT * FROM users WHERE id = ($1)'
+            , [params.id])
+            .then((res: { rows: any[] }) => res.rows[0])
     ,
 
     getUser: async ({input}: any) => await pool.query('SELECT * FROM users WHERE mail = ($1)'
@@ -257,6 +261,17 @@ const root = {
             , [input.id, input.folderid, input.bookid, input.title, input.content, input.datecreate, input.dateupdate])
             .then((res: { rows: any[] }) => res.rows[0])
     }
+    ,
+    updateUserName: async ({id, name}: any) =>
+        await pool.query('UPDATE users SET mail = ($2) WHERE id = ($1) RETURNING *', [id, name])
+        .then((res: { rows: any[] }) => res.rows[0])
+    ,
+    updateUserPassword: async ({id, password}: any) =>
+        await pool.query('UPDATE users SET password = ($2) WHERE id = ($1) RETURNING *'
+            , [id, bcrypt.hashSync(password, 1)])
+            .then((res: { rows: any[] }) => res.rows[0])
+
+
     ,
     updateFolderCountNotes: async ({folderid, mode}: any) => {
         const countofnotes = await pool.query('SELECT countofnotes FROM folders WHERE id = ($1)',
@@ -440,6 +455,44 @@ app.post('/login',
         }
     });
 
+
+app.post('/changePassword',
+
+    body('newPassword', 'Password must be longer than 5')
+        .trim()
+        .isLength({ min: 5 })
+        .custom(async (newPassword, {req}) => {
+            const confirmPassword = req.body.confirmPassword
+            if(newPassword !== confirmPassword){
+                console.log({newPassword, confirmPassword})
+                throw new Error('Passwords must be same')
+            }
+        }),
+    function(req, res) {
+        try{
+            const errors = validationResult(req)
+
+            if (!errors.isEmpty()) {
+                return res.status(401).json({message: errors.array()[0].msg})
+            } else {
+                const {id, oldPassword} = req.body
+
+                root.getUserById({id}).then((data: any) => {
+                    if(data) {
+                        const isOldPassRight = bcrypt.compareSync(oldPassword, data.password)
+                        if (!isOldPassRight) {
+                            return res.status(400).json({message: "Invalid password"})
+                        }
+                        return res.status(200).json({message: "ok"})
+                    }else{
+                        return res.status(401).json({message: "Server Error"})
+                    }
+                })
+            }
+        }catch (e) {
+            return res.status(401).json({message: "Server Error"})
+        }
+    });
 
 
 app.use('/graphql', graphqlHTTP({

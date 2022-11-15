@@ -13,6 +13,7 @@ import {gql, useQuery} from "@apollo/client";
 import AuthProvider, {AuthContext} from "./AuthProvider"
 import Header from "./components/Header/Header";
 import BookSettings from "./components/BookSettings/BookSettings";
+import UserSettings from "./components/UserSettings/UserSettings";
 
 const GET_USER_BY_ID = gql`
     query getUserById($id: ID) {
@@ -50,6 +51,7 @@ function App() {
                   <Route path='/note-creator/:id' element={<NoteCreator />}/>
                   <Route path='/folder-notes/:id' element={<FolderNotes />}/>
                   <Route path='/book-settings/:id' element={<BookSettings />}/>
+                  <Route path='/settings' element={<UserSettings/>}/>
 
                   {/*<Route path='/auth' element={<AuthWrapper />}/>*/}
 

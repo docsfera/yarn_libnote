@@ -67,11 +67,16 @@ const AuthProvider = ({ children }: any) => {
         navigate('/auth')
     }
 
+    const setNewUserName = (name: any) => {
+        setUserInfo({id: userInfo.id, mail: name, token: userInfo.token})
+    }
+
     const value = {
         userInfo,
         onLogin: handleLogin,
         onLogout: handleLogout,
         redirectToAuth,
+        setNewUserName,
     };
 
     return (

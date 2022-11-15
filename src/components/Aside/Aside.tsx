@@ -15,7 +15,7 @@ const Aside = () => {
             <NavLink className="menu-item" to="/"> <p className="name-menu-item main-item">Main</p> </NavLink>
             <NavLink className="menu-item" to="/books"> <p className="name-menu-item book-item">Books</p> </NavLink>
             <NavLink className="menu-item" to="/notes"> <p className="name-menu-item note-item">Notes</p> </NavLink>
-            <div className="menu-item"> <p className="name-menu-item settings-item">Settings</p> </div>
+            <NavLink className="menu-item" to="/settings"> <p className="name-menu-item settings-item">Settings</p> </NavLink>
 
         </div>
 
