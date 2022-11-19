@@ -3,12 +3,13 @@ import "./Books.sass"
 import Header from "../Header/Header";
 import pdfjs from "pdfjs-dist"
 import {gql, useMutation, useQuery} from "@apollo/client"
-import {useNavigate} from "react-router-dom"
+import {NavLink, useNavigate} from "react-router-dom"
 import Book from "../Book/Book";
 import html2canvas from "html2canvas"
 //@ts-ignore
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry'
 import CyrillicToTranslit from "cyrillic-to-translit-js"
+import SectionInfo from "../SectionInfo/SectionInfo";
 
 const pdfjsLib = require("pdfjs-dist/build/pdf")
 const pdfjsViewer = require("pdfjs-dist/web/pdf_viewer")
@@ -56,6 +57,10 @@ const Books: React.FC<BooksType> = (props) => {
 
     const refCanvas = useRef(null)
     const smokeWindow = useRef<HTMLDivElement>(null) // TODO: create component
+
+    let booksCount
+    data ? booksCount = data.getAllBooks.length : booksCount = 0
+
     useEffect(() => {
         if(smokeWindow && smokeWindow.current){
             smokeWindow.current.style.height = `${smokeWindow.current.ownerDocument.body.offsetHeight}px`
@@ -172,32 +177,38 @@ const Books: React.FC<BooksType> = (props) => {
     return (
         <div>
             <Header/>
-            <div className="books">
-                {/*<div ref={smokeWindow} className="smoke"> </div>*/}
-                {data && data.getAllBooks.map((i: any) =>
-                    <Book
-                        key={i.id}
-                        id={i.id}
-                        name={i.name}
-                        UTFName={i.utfname}
-                        userId={props.userInfo.id}
-                        pimp={pimp}
-                        imageName={i.image}
-                        showBookSettings={showBookSettings}
-                    />)
-                }
-                <div id="drop-area"
-                     ref={dropArea}
-                     onDragEnter={go}
-                     onDragOver={go}
-                     onDragLeave={gone}
-                     onDrop={(e) => {gone(); changeUploadFile(e)}}>
+            <div className="books-container">
+                <SectionInfo nameSection="Books" sectionCount={booksCount}/>
 
-                    <input type="file" id="fileElem" accept="application/pdf" onChange={(e) => changeUploadFile(e)}/>
+                <div className="books">
+                    {/*<div ref={smokeWindow} className="smoke"> </div>*/}
+                    {data && data.getAllBooks.map((i: any) =>
+                        <Book
+                            key={i.id}
+                            id={i.id}
+                            name={i.name}
+                            UTFName={i.utfname}
+                            userId={props.userInfo.id}
+                            pimp={pimp}
+                            imageName={i.image}
+                            showBookSettings={showBookSettings}
+                        />)
+                    }
+                    <div id="drop-area"
+                         ref={dropArea}
+                         onDragEnter={go}
+                         onDragOver={go}
+                         onDragLeave={gone}
+                         onDrop={(e) => {gone(); changeUploadFile(e)}}>
+
+                        <input type="file" id="fileElem" accept="application/pdf" onChange={(e) => changeUploadFile(e)}/>
+                    </div>
                 </div>
+
+                <canvas ref={refCanvas} width="570" height="760" className="canvas"></canvas>
+
             </div>
 
-            <canvas ref={refCanvas} width="570" height="760" className="canvas"></canvas>
 
         </div>
     );

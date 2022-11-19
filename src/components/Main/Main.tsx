@@ -68,7 +68,6 @@ const Main = () => {
         <div>
             <Header/>
             <div className="main">
-                <button onClick={onLogout}> 555</button>
                 <div ref={smokeWindow} className="smoke"> </div>
 
                 <Folders numOfNotes={numOfNotes}

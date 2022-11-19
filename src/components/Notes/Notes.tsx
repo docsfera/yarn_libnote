@@ -4,6 +4,8 @@ import Header from "../Header/Header"
 import Note from "../Note/Note";
 import InputNoteCreator from "../InputNoteCreator/InputNoteCreator";
 import {gql, useQuery} from "@apollo/client";
+import {AuthContext} from "../../AuthProvider";
+import SectionInfo from "../SectionInfo/SectionInfo";
 
 const GET_ALL_NOTES = gql`
     query getAllNotes($userid: ID) {
@@ -16,12 +18,24 @@ const GET_ALL_NOTES = gql`
 
 const Notes = () => {
 
-    //const { loading, data, error, refetch} = useQuery(GET_ALL_NOTES, {variables: {userid: "1"}})
+    const {userInfo} = React.useContext(AuthContext) // TODO: во всех вкладках7
+
+
+
+    const { loading, data, error, refetch} = useQuery(GET_ALL_NOTES, {variables: {userid: userInfo.id}})
+
+    let notesCount
+    data ? notesCount = data.getAllNotes.length : notesCount = 0
 
     return (
-        <div className="notes">
+        <div>
             <Header/>
-            {/*<InputNoteCreator/>*/}
+            <div className="notes-container">
+                <SectionInfo nameSection="Notes" sectionCount={notesCount}/>
+
+                <div className="books">
+                </div>
+            </div>
         </div>
     );
 };

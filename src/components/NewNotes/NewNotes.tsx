@@ -3,6 +3,7 @@ import "./NewNotes.sass"
 import {gql, useMutation, useQuery} from "@apollo/client"
 import {NavLink, useNavigate} from "react-router-dom"
 import Note from "../Note/Note"
+import SectionInfo from "../SectionInfo/SectionInfo";
 
 const GET_ALL_NOTES = gql`
     query getAllNotes($userid: ID) {
@@ -58,6 +59,9 @@ const NewNotes: React.FC<NewNotesType> = (props) => {
     const [deleteNote] = useMutation(DELETE_NOTE_BY_ID)
     const [updateFolderCountNotes] = useMutation(UPDATE_FOLDER_COUNT_NOTES)
 
+    let notesCount
+    (notesData && notesData.getAllNotes) ? notesCount = notesData.getAllNotes.length : notesCount = 0
+
     const deleteNoteEvent = async (noteId: string, folderId: any) => {
         await deleteNote({variables: {noteid: noteId}})
         folderId && await updateFolderCountNotes({variables: {folderid: folderId, mode: "-"}})
@@ -72,10 +76,11 @@ const NewNotes: React.FC<NewNotesType> = (props) => {
     return (
         <div className="notes-section">
             <div className="notes-wrapper">
-                <div className="notes-info">
-                    <NavLink to="notes" className="name-section">Заметки</NavLink>
-                    <p className="section-count">{`Всего ${(notesData && notesData.getAllNotes) ? notesData.getAllNotes.length : "0"} заметок`}</p>
-                </div>
+                <SectionInfo nameSection="Notes" sectionCount={notesCount} isLink={true}/>
+                {/*<div className="notes-info">*/}
+                {/*    <NavLink to="notes" className="name-section">Заметки</NavLink>*/}
+                {/*    <p className="section-count">{`Всего ${(notesData && notesData.getAllNotes) ? notesData.getAllNotes.length : "0"} заметок`}</p>*/}
+                {/*</div>*/}
                 <div className="create-note" onClick={() => goToNoteCreator()}>
                     Создать заметку
                 </div>

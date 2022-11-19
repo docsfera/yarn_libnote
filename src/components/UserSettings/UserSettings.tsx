@@ -23,7 +23,7 @@ const UPDATE_USER_PASSWORD = gql`
 
 
 const UserSettings = () => {
-    const {userInfo, setNewUserName} = React.useContext(AuthContext)
+    const {userInfo, setNewUserName, onLogout} = React.useContext(AuthContext)
     const [userName, setUserName] = useState(userInfo.mail)
     const [errorMessage, setErrorMessage] = useState("")
     const [oldUserPassword, setOldUserPassword] = useState("")
@@ -119,7 +119,8 @@ const UserSettings = () => {
                            value={confirmNewPassword}
                            onChange={(e) => setConfirmNewPassword(e.target.value)}
                     />
-                    <button className="button button-exit" onClick={changePasswordEvent}>Изменить пароль</button>
+                    <button className="button button-pass button-save" onClick={changePasswordEvent}>Изменить пароль</button>
+                    <button className="button button-exit" onClick={onLogout}>Выход</button>
 
                 </div>
             </div>

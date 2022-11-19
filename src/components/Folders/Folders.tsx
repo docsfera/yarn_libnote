@@ -5,6 +5,7 @@ import "./Folders.sass"
 import {gql, useMutation, useQuery} from "@apollo/client";
 import {NavLink, useNavigate} from "react-router-dom"
 import FolderCreateWindow from "../FolderCreateWindow/FolderCreateWindow";
+import SectionInfo from "../SectionInfo/SectionInfo";
 
 
 const GET_ALL_FOLDERS = gql`
@@ -118,10 +119,7 @@ const Folders: React.FC<FoldersType> = (props) => {
                                                         setNameCreatedFolder={setNameCreatedFolder}/>}
 
             <div className="folders-wrapper">
-                <div className="folders-info">
-                    <NavLink to="folders" className="name-section">Папки</NavLink>
-                    <p className="section-count">{`Всего ${folderCount} папок`}</p>
-                </div>
+                <SectionInfo nameSection="Folders" sectionCount={folderCount} isLink={true}/>
                 <div className="create-folder" onClick={showCreateFolderWindow}>
                     Создать папку
                 </div>

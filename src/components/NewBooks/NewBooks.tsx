@@ -6,6 +6,7 @@ import Book from "../Book/Book";
 import Arrow from "../Arrow/Arrow";
 //@ts-ignore
 import {AuthContext} from "../../AuthProvider";
+import SectionInfo from "../SectionInfo/SectionInfo";
 
 const GET_ALL_BOOKS = gql`
     query getAllBooks($userid: ID){
@@ -32,8 +33,9 @@ const NewBooks = () => {
 
     return (
         <div className="folders-section" ref={bookSection}>
-            <NavLink to="books" className="name-section">Книги</NavLink>
-            <p className="section-count">{`Всего ${bookCount} книг`}</p>
+            <SectionInfo nameSection="Books" sectionCount={bookCount} isLink={true}/>
+            {/*<NavLink to="books" className="name-section">Книги</NavLink>*/}
+            {/*<p className="section-count">{`Всего ${bookCount} книг`}</p>*/}
             <div className="folders">
                     <Arrow gg={gg}
                     position={position}
