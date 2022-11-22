@@ -1,4 +1,4 @@
-import React, {useEffect} from "react"
+import React, {useEffect, useRef} from "react"
 import {
     Routes,
     Route,
@@ -32,6 +32,20 @@ const AuthProvider = ({ children }: any) => {
     const {data} = useQuery(GET_USER_BY_TOKEN, {variables:{token}})
 
     const [userInfo, setUserInfo] = React.useState<UserType>({id: null, mail: null, token: token})
+
+    const smokeWindow = useRef<HTMLDivElement>(null)
+
+    const hideSmokeWindow = () => {
+        if(smokeWindow && smokeWindow.current){
+            smokeWindow.current.style.display = "none"
+        }
+    }
+    const showSmokeWindow = () => {
+        if(smokeWindow && smokeWindow.current){
+            smokeWindow.current.style.height = `${smokeWindow.current.ownerDocument.body.offsetHeight}px`
+            smokeWindow.current.style.display = "block"
+        }
+    }
 
     useEffect(() => {
         if(data){
@@ -77,11 +91,14 @@ const AuthProvider = ({ children }: any) => {
         onLogout: handleLogout,
         redirectToAuth,
         setNewUserName,
+        hideSmokeWindow,
+        showSmokeWindow
     };
 
     return (
         <AuthContext.Provider value={value}>
-            {children}
+            <div ref={smokeWindow} className="smoke"> </div>
+                {children}
         </AuthContext.Provider>
     );
 };

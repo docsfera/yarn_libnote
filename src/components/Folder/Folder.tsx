@@ -5,8 +5,8 @@ import {gql, useMutation, useQuery} from "@apollo/client";
 type folderType = {
     folder: any //TODO: any
     useGetCountNotesByFolder: any
-    refetchFolders: any
-    showFolderNotes: any
+    refetchFolders?: any
+    showFolderNotes?: any
 }
 
 const GET_NOTES_BY_FOLDER = gql`
