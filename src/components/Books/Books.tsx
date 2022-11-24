@@ -59,7 +59,9 @@ const Books: React.FC<BooksType> = (props) => {
     const smokeWindow = useRef<HTMLDivElement>(null) // TODO: create component
 
     let booksCount
-    data ? booksCount = data.getAllBooks.length : booksCount = 0
+    data?.getAllBooks ? booksCount = data.getAllBooks.length : booksCount = 0
+
+    const [searchWord, setSearchWord] = useState("")
 
     useEffect(() => {
         if(smokeWindow && smokeWindow.current){
@@ -174,15 +176,21 @@ const Books: React.FC<BooksType> = (props) => {
         navigate(`../book-settings/${bookId}`)
     }
 
+    const condition = (book: any, searchWord: string) => {
+        if(book.name.toLowerCase().includes(searchWord.toLowerCase())){
+            return book
+        }
+    }
+
     return (
         <div>
-            <Header/>
+            <Header setSearchWord={setSearchWord} searchWord={searchWord} isShow={true}/>
             <div className="books-container">
                 <SectionInfo nameSection="Books" sectionCount={booksCount}/>
 
                 <div className="books">
                     {/*<div ref={smokeWindow} className="smoke"> </div>*/}
-                    {data && data.getAllBooks.map((i: any) =>
+                    {data && data.getAllBooks.filter((i: any) => condition(i, searchWord)).map((i: any) =>
                         <Book
                             key={i.id}
                             id={i.id}
@@ -192,6 +200,7 @@ const Books: React.FC<BooksType> = (props) => {
                             pimp={pimp}
                             imageName={i.image}
                             showBookSettings={showBookSettings}
+                            searchWord={searchWord}
                         />)
                     }
                     <div id="drop-area"

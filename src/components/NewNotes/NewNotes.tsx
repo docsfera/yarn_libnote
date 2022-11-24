@@ -1,9 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import "./NewNotes.sass"
 import {gql, useMutation, useQuery} from "@apollo/client"
-import {NavLink, useNavigate} from "react-router-dom"
+import {useNavigate} from "react-router-dom"
 import Note from "../Note/Note"
-import SectionInfo from "../SectionInfo/SectionInfo";
+import SectionInfo from "../SectionInfo/SectionInfo"
+
+import {getPathToNoteCreate} from "../../Functions"
+import ButtonCreate from "../ButtonCreate/ButtonCreate"
+import useDeleteNoteEvent from "../../Functions/deleteNoteEvent"
 
 const GET_ALL_NOTES = gql`
     query getAllNotes($userid: ID) {
@@ -17,24 +21,6 @@ const GET_ALL_NOTES = gql`
         }
     }
 `
-
-const DELETE_NOTE_BY_ID = gql`
-      mutation deleteNoteById($noteid: ID) {
-        deleteNoteById(noteid: $noteid){
-            id
-        }
-    }
-`
-
-const UPDATE_FOLDER_COUNT_NOTES = gql`
-    mutation updateFolderCountNotes($folderid: ID, $mode: String){
-        updateFolderCountNotes(folderid: $folderid, mode: $mode) {
-            id
-        }
-    }
-
-`
-
 type NewNotesType = {
     getAllNotesQuery: any
 }
@@ -48,57 +34,34 @@ const NewNotes: React.FC<NewNotesType> = (props) => {
 
 
     const refetch = () => props.getAllNotesQuery.refetch()
-    //const data = props.getAllNotesQuery.data
 
     const navigate = useNavigate()
-    const goToNoteCreator = (noteId? : string) => {
-        noteId ? navigate(`/note-creator/${noteId}`) : navigate(`/note-creator`)
-        //, { state: { noteId }}
-    }
-
-    const [deleteNote] = useMutation(DELETE_NOTE_BY_ID)
-    const [updateFolderCountNotes] = useMutation(UPDATE_FOLDER_COUNT_NOTES)
+    const goToNoteCreator = (noteId?: string) => navigate(getPathToNoteCreate(noteId))
 
     let notesCount
-    (notesData && notesData.getAllNotes) ? notesCount = notesData.getAllNotes.length : notesCount = 0
-
-    const deleteNoteEvent = async (noteId: string, folderId: any) => {
-        await deleteNote({variables: {noteid: noteId}})
-        folderId && await updateFolderCountNotes({variables: {folderid: folderId, mode: "-"}})
-
-        await refetch()
-    }
-
-
-
-
+    notesData?.getAllNotes ? notesCount = notesData.getAllNotes.length : notesCount = 0
 
     return (
         <div className="notes-section">
             <div className="notes-wrapper">
                 <SectionInfo nameSection="Notes" sectionCount={notesCount} isLink={true}/>
-                {/*<div className="notes-info">*/}
-                {/*    <NavLink to="notes" className="name-section">Заметки</NavLink>*/}
-                {/*    <p className="section-count">{`Всего ${(notesData && notesData.getAllNotes) ? notesData.getAllNotes.length : "0"} заметок`}</p>*/}
-                {/*</div>*/}
-                <div className="create-note" onClick={() => goToNoteCreator()}>
-                    Создать заметку
-                </div>
+                <ButtonCreate name="Создать заметку" onClick={() => goToNoteCreator()}/>
             </div>
 
             <div className="notes">
                 {(notesData && notesData.getAllNotes)
-                    ? notesData.getAllNotes.map((i: any) => <Note noteId={i.id}
-                                                             key={i.id}
-                                                             folderId={i.folderid}
-                                                             bookId={i.bookid}
-                                                             noteContent={i.content}
-                                                             dateUpdate={i.dateupdate}
-                                                             deleteNoteEvent={deleteNoteEvent}
-                                                             noteName={i.title}
-                                                             goToNoteCreator={goToNoteCreator}
-                    />)
-                    : " "}
+                    && notesData.getAllNotes.map((i: any) =>
+                        <Note noteId={i.id}
+                              key={i.id}
+                              folderId={i.folderid}
+                              bookId={i.bookid}
+                              noteContent={i.content}
+                              dateUpdate={i.dateupdate}
+                              noteName={i.title}
+                              refetchNotes={refetch}
+                              goToNoteCreator={goToNoteCreator}
+                        />)
+                }
 
             </div>
         </div>

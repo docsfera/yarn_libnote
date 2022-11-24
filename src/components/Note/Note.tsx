@@ -1,6 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react'
 import "./Note.sass"
 import * as cn from "classnames"
+import withNoteDeleteEvent from "../../HOC/withNoteDeleteEvent"
+import withSearchMark from "../../HOC/withSearchMark";
 // TODO: type of function!
 type NoteProps = {
     noteId: string
@@ -13,7 +15,8 @@ type NoteProps = {
     goToNoteCreator?: any
     searchWord?: string
     getNoteCreatorComponentEvent?: any
-
+    refetchNotes: any
+    insertMarkHTML: any
     currentNoteData?: any
 }
 
@@ -31,12 +34,11 @@ const Note: React.FC<NoteProps> = (props) => {
     const noteContentRef = useRef<HTMLDivElement>(null)
     const [isClicked, setIsClicked] = useState(true)
 
-    console.log(props)
 
     useEffect(() => {
         if(noteNameRef && noteNameRef.current && noteContentRef && noteContentRef.current){
-            noteNameRef.current.innerHTML = insertMarkHTML(props.noteName, props.searchWord)
-            noteContentRef.current.innerHTML = insertMarkHTML(props.noteContent, props.searchWord)
+            noteNameRef.current.innerHTML = props.insertMarkHTML(props.noteName, props.searchWord)
+            noteContentRef.current.innerHTML = props.insertMarkHTML(props.noteContent, props.searchWord)
         }
 
         if(props.noteId && props.currentNoteData && props.currentNoteData.noteId){
@@ -45,19 +47,6 @@ const Note: React.FC<NoteProps> = (props) => {
 
     }, [props])
 
-    const insertMark = (str: string, pos: number, len: number) =>{
-        if(pos === 0 && len === 0) return str
-        return str.slice(0, pos) + '<mark>' + str.slice(pos, pos+len) + '</mark>' + str.slice(pos+len)
-    }
-
-
-    const insertMarkHTML = (noteName: string, searchWord: string | undefined) => {
-        if(searchWord){
-            return insertMark(noteName, noteName.toLowerCase().search(searchWord.toLowerCase()), searchWord.length)
-        }else{
-            return noteName
-        }
-    }
 
     const noteClickEvent = () => {
         if(!props.currentNoteData || !props.currentNoteData.noteId ){
@@ -96,7 +85,7 @@ const Note: React.FC<NoteProps> = (props) => {
                 <p className="note-time">{props.dateUpdate}</p>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default Note;
+export default withNoteDeleteEvent(withSearchMark(Note))

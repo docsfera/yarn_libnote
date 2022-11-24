@@ -3,6 +3,7 @@ import "./FolderNotes.sass"
 import {useQuery, gql, useMutation} from "@apollo/client"
 import {useNavigate, useParams} from "react-router-dom"
 import Note from "../Note/Note"
+import ButtonCreate from "../ButtonCreate/ButtonCreate";
 
 //TODO: dont repeat yourself
 const GET_NOTES_BY_FOLDER = gql` 
@@ -84,9 +85,7 @@ const FolderNotes = () => {
 
                     <div className="count-notes">{`Всего заметок ${data && data.getNotesByFolder.length}`}</div>
                 </div>
-                <div className="create-note" onClick={() => goToNoteCreator()}>
-                    Создать заметку
-                </div>
+                <ButtonCreate name="Создать заметку" onClick={() => goToNoteCreator()}/>
             </div>
 
 

@@ -1,58 +1,21 @@
 import React, {useEffect, useRef, useState} from 'react'
 import "./Folder.sass"
-import {gql, useMutation, useQuery} from "@apollo/client";
+import withFolderDeleteEvent from "../../HOC/withFolderDeleteEvent"
+import withSearchMark from "../../HOC/withSearchMark"
 
-type folderType = {
+type FolderType = {
     folder: any //TODO: any
     useGetCountNotesByFolder: any
+    deleteFolderEvent: any
+    searchWord?: string
     refetchFolders?: any
     showFolderNotes?: any
+    insertMarkHTML: any
 }
 
-const GET_NOTES_BY_FOLDER = gql`
-    query getNotesByFolder($folderid: ID) {
-        getNotesByFolder(folderid: $folderid){
-            id
-        }
-    }
-` //TODO: FolderId!!! getAllNotes???
-
-const DELETE_FOLDER_BY_ID = gql`
-    mutation deleteFolderById($id: ID) {
-        deleteFolderById(id: $id) {
-            id
-        }
-    }
-
-
-`
-
-const Folder: React.FC<folderType> = (props) => {
-
-//нельзя убирать, еще нужен будет для перехода к папке
-// const { loading, data, error} = useQuery(GGGG, {variables: {folderid: props.folder.id}})
-
-    //console.log({"Folder": props})
-
+const Folder: React.FC<FolderType> = (props) => {
     const settingsItems = useRef<HTMLDivElement>(null)
-
-    const { loading, data, error, refetch} = useQuery(GET_NOTES_BY_FOLDER, {variables: {folderid: "1"}})
-    const [deleteFolderById] = useMutation(DELETE_FOLDER_BY_ID)
-
-    const deleteFolderEvent = async () => {
-        await deleteFolderById(
-            {
-                variables: {
-                    id: props.folder.id
-                }
-            })
-        data && data.getNotesByFolder.map((i: any) => {
-
-        })
-        props.refetchFolders()
-    }
-
-
+    const folderNameRef = useRef<HTMLParagraphElement>(null)
     const showSettingsItems = () => {
         if(settingsItems && settingsItems.current) {
             if(settingsItems.current.style.cssText == ""){
@@ -67,6 +30,15 @@ const Folder: React.FC<folderType> = (props) => {
         }
     }
 
+
+    useEffect(() => {
+        if(folderNameRef && folderNameRef.current ){
+            folderNameRef.current.innerHTML = props.insertMarkHTML(props.folder.name, props.searchWord)
+        }
+
+    }, [props.searchWord])
+
+
     return (
         <div className="folder">
             <div className="folder-info">
@@ -79,15 +51,15 @@ const Folder: React.FC<folderType> = (props) => {
                     </div>
                     <div ref={settingsItems} className="settings-items">
                         {/*<div className="settings-item">Rename</div>*/}
-                        <div className="settings-item" onClick={deleteFolderEvent}>Delete</div>
+                        <div className="settings-item" onClick={props.deleteFolderEvent}>Delete</div>
                     </div>
 
                 </div>
             </div>
             <div className="folder-image" onClick={() => props.showFolderNotes(props.folder.id)}> </div>
-            <p className="folder-name">{props.folder.name}</p>
+            <p ref={folderNameRef} className="folder-name"> </p>
         </div>
     );
 };
 
-export default Folder;
+export default withFolderDeleteEvent(withSearchMark(Folder))

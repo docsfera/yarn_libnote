@@ -1,7 +1,11 @@
 .folders-container
   padding-left: 50px
+  .folders-wrapper
+    width: calc((180px + 24px) * 3 + 50px)   // (width + margin) * count    //TODO: for wrap!! 1080x720???
+    display: flex
+    justify-content: space-between
   .folders
-    width: 800px //TODO: for wrap!! 1080x720???
+    width: 800px
     display: flex
     flex-wrap: wrap
     font-family: Inter, sans-serif

@@ -1,11 +1,14 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import "./Folders.sass"
 import Header from "../Header/Header"
 import SectionInfo from "../SectionInfo/SectionInfo"
-import {gql, useQuery} from "@apollo/client";
-import {AuthContext} from "../../AuthProvider";
+import {gql, useQuery} from "@apollo/client"
+import {useNavigate} from "react-router-dom"
+import {AuthContext} from "../../AuthProvider"
 import Book from "../Book/Book";
 import Folder from "../Folder/Folder";
+import ButtonCreate from "../ButtonCreate/ButtonCreate";
+import FolderCreateWindow from "../FolderCreateWindow/FolderCreateWindow";
 
 const GET_ALL_FOLDERS = gql`
     query getAllFolders($userid: ID) {
@@ -26,11 +29,15 @@ const GET_NOTES_BY_FOLDER = gql`
 `
 
 const Folders = () => {
-
     const {userInfo} = React.useContext(AuthContext)
-
+    const [searchWord, setSearchWord] = useState("")
+    const [isShowFolderCreator, setIsShowFolderCreator] = useState(false)
+    const navigate = useNavigate()
 
     const { loading, data, error, refetch} = useQuery(GET_ALL_FOLDERS, {variables: {userid: userInfo.id}})
+
+    useEffect( () => { refetch() }, [])
+    // TOdo: дождаться резульата хочу(баг с переименованием папки) (через then? or loading)
 
     let foldersCount
     data ? foldersCount = data.getAllFolders.length : foldersCount = 0
@@ -44,17 +51,34 @@ const Folders = () => {
         }
     }
 
+    const condition = (folder: any, searchWord: string) => {
+        if(folder.name.toLowerCase().includes(searchWord.toLowerCase())){
+            return folder
+        }
+    }
+
+    const showFolderNotes = (id: string) => {
+        navigate(`/folder-notes/${id}`)
+    }
+
     return (
         <div>
-            <Header/>
+            <Header setSearchWord={setSearchWord} isShow={true}/>
             <div className="folders-container">
-                <SectionInfo nameSection="Folders" sectionCount={foldersCount}/>
+                {isShowFolderCreator && <FolderCreateWindow setIsShowFolderCreator={setIsShowFolderCreator} refetch={refetch}/>}
+                <div className="folders-wrapper">
+                    <SectionInfo nameSection="Folders" sectionCount={foldersCount}/>
+                    <ButtonCreate name="Создать папку" onClick={() => setIsShowFolderCreator(true)}/>
+                </div>
 
                 <div className="folders">
-                    {data && data.getAllFolders.map((i: any) =>
+                    {data && data.getAllFolders.filter((i: any) => condition(i, searchWord)).map((i: any) =>
                         <Folder folder={i}
                                 key={i.id}
                                 useGetCountNotesByFolder={useGetCountNotesByFolder}
+                                refetchFolders={refetch}
+                                showFolderNotes={showFolderNotes}
+                                searchWord={searchWord}
                         />)
                     }
                 </div>

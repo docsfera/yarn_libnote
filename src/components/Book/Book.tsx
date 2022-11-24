@@ -1,5 +1,6 @@
-import React, {useRef} from 'react'
+import React, {useEffect, useRef} from 'react'
 import "./Book.sass"
+import withSearchMark from "../../HOC/withSearchMark"
 
 type BookType = {
     id: any
@@ -9,9 +10,18 @@ type BookType = {
     pimp: any
     imageName: string
     showBookSettings: any
+    searchWord?: string
+    insertMarkHTML: any
 }
 
 const Book: React.FC<BookType> = (props) => {
+    const bookNameRef = useRef<HTMLParagraphElement>(null)
+    useEffect(() => {
+        if(bookNameRef && bookNameRef.current){
+            bookNameRef.current.innerHTML = props.insertMarkHTML(props.name, props.searchWord)
+        }
+    }, [props])
+
     return (
         <div className="book" onClick={() => props.pimp(props.UTFName)}>
             <img src="/images/book-settings.png"
@@ -23,9 +33,9 @@ const Book: React.FC<BookType> = (props) => {
                 ? <img src={`/files/${props.userId}/${props.imageName}`} alt="" className="image"/>
                 :  <img src={"/images/non-found-book.png"} alt="" className="image"/>}
 
-            <p className="book-name">{props.name}</p>
+            <p ref={bookNameRef} className="book-name">{props.name}</p>
         </div>
     );
 };
 
-export default Book;
+export default withSearchMark(Book)
