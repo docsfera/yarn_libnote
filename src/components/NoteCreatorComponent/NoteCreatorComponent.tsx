@@ -6,16 +6,17 @@ type NoteCreatorComponentType = {
     userId: string
     currentNoteData: any
     setCurrentNoteData: any
+    book: any
 }
 
 const NoteCreatorComponent: React.FC<NoteCreatorComponentType> = (props) => {
-    console.log(props.currentNoteData)
     return (
         <div className="note-creator-component">
 
             <NoteCreator isShowHeader={false}
                          currentNoteData={props.currentNoteData}
-                         setCurrentNoteData={props.setCurrentNoteData}/>
+                         setCurrentNoteData={props.setCurrentNoteData}
+                         book={props.book}/>
         </div>
     );
 };

@@ -3,12 +3,9 @@ import "./Book.sass"
 import withSearchMark from "../../HOC/withSearchMark"
 
 type BookType = {
-    id: any
-    name: string
-    UTFName: string
+    book: any
     userId: string
     pimp: any
-    imageName: string
     showBookSettings: any
     searchWord?: string
     insertMarkHTML: any
@@ -18,22 +15,24 @@ const Book: React.FC<BookType> = (props) => {
     const bookNameRef = useRef<HTMLParagraphElement>(null)
     useEffect(() => {
         if(bookNameRef && bookNameRef.current){
-            bookNameRef.current.innerHTML = props.insertMarkHTML(props.name, props.searchWord)
+            bookNameRef.current.innerHTML = props.insertMarkHTML(props.book.name, props.searchWord)
         }
     }, [props])
 
+
+    console.log({book: props.book})
     return (
-        <div className="book" onClick={() => props.pimp(props.UTFName)}>
+        <div className="book" onClick={() => props.pimp(props.book)}>
             <img src="/images/book-settings.png"
                  className="book-settings"
-                 onClick={e => props.showBookSettings(e, props.id)}>
+                 onClick={e => props.showBookSettings(e, props.book.id)}>
             </img>
 
-            {props.imageName
-                ? <img src={`/files/${props.userId}/${props.imageName}`} alt="" className="image"/>
+            {props.book.image
+                ? <img src={`/files/${props.userId}/${props.book.image}`} alt="" className="image"/>
                 :  <img src={"/images/non-found-book.png"} alt="" className="image"/>}
 
-            <p ref={bookNameRef} className="book-name">{props.name}</p>
+            <p ref={bookNameRef} className="book-name">{props.book.name}</p>
         </div>
     );
 };

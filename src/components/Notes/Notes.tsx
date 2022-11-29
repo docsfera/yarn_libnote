@@ -1,17 +1,14 @@
-import React, {useEffect, useState} from 'react'
+import React, {useState} from 'react'
 import "./Notes.sass"
 import Header from "../Header/Header"
-import Note from "../Note/Note";
-import InputNoteCreator from "../InputNoteCreator/InputNoteCreator";
-import {gql, useQuery} from "@apollo/client";
+import {gql, useQuery} from "@apollo/client"
 import {useNavigate} from "react-router-dom"
-import {AuthContext} from "../../AuthProvider";
-import SectionInfo from "../SectionInfo/SectionInfo";
-import Folder from "../Folder/Folder";
+import {AuthContext} from "../../AuthProvider"
+import SectionInfo from "../SectionInfo/SectionInfo"
 
 import {getPathToNoteCreate} from "../../Functions"
-//import deleteNoteEvent from "../../Functions/deleteNoteEvent"
-import ButtonCreate from "../ButtonCreate/ButtonCreate";
+import ButtonCreate from "../ButtonCreate/ButtonCreate"
+import NotesComponent from "../NotesComponent/NotesComponent"
 
 const GET_ALL_NOTES = gql`
     query getAllNotes($userid: ID) {
@@ -31,9 +28,7 @@ const Notes = () => {
     const [searchWord, setSearchWord] = useState("")
 
 
-    const { loading, data, error, refetch} = useQuery(GET_ALL_NOTES, {variables: {userid: userInfo.id}})
-
-    useEffect(() => {refetch()}, [])
+    const {data, refetch} = useQuery(GET_ALL_NOTES, {variables: {userid: userInfo.id}})
 
     let notesCount
     data?.getAllNotes ? notesCount = data.getAllNotes.length : notesCount = 0
@@ -54,23 +49,16 @@ const Notes = () => {
                     <ButtonCreate name="Создать заметку" onClick={() => goToNoteCreator()}/>
                 </div>
 
-
                 <div className="notes">
-                    {data && data.getAllNotes.filter((i: any) => condition(i, searchWord)).map((i: any) =>
-                        <Note noteId={i.id}
-                              noteName={i.title}
-                              noteContent={i.content}
-                              dateUpdate={i.dateupdate}
-                              searchWord={searchWord}
-                              goToNoteCreator={goToNoteCreator}
-                              refetchNotes={refetch}
-                        />)
-
-                    }
+                    <NotesComponent
+                        searchWord={searchWord}
+                        condition={condition}
+                        goToNoteCreator={goToNoteCreator}
+                    />
                 </div>
             </div>
         </div>
     );
 };
 
-export default Notes;
+export default Notes

@@ -21,6 +21,8 @@ const GET_ALL_NOTES = gql`
             id
             title
             content
+            folderid
+            bookid
             dateupdate
         }
     }
@@ -30,7 +32,9 @@ const Main = () => {
     const {userInfo} = React.useContext(AuthContext)
     const getAllNotesQuery = useQuery(GET_ALL_NOTES, {variables: {userid: userInfo.id}})
 
-    useEffect(() => {getAllNotesQuery.refetch()}, [])
+    useEffect(() => {
+        getAllNotesQuery.refetch()
+    }, [])
     const numOfNotes: any = (getAllNotesQuery.data && getAllNotesQuery.data.getAllNotes) && getAllNotesQuery.data.getAllNotes.length
 
     //TODO: как типизировать data, data.getAllNotes?

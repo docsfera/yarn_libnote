@@ -117,8 +117,8 @@ const Books: React.FC<BooksType> = (props) => {
         await mut({variables: {file} })
     }, [])
 
-    const pimp = (name: string) => {
-        navigate(`../pdf-viewer/${props.userInfo.id}`, {state: {name}}) // TODO: useQuery(getBookByID)???
+    const pimp = (book: any) => {
+        navigate(`../pdf-viewer/${props.userInfo.id}`, {state: {book}}) // TODO: useQuery(getBookByID)???
     }
 
     // const exitFromCreateFolderWindow = () => {
@@ -193,12 +193,9 @@ const Books: React.FC<BooksType> = (props) => {
                     {data && data.getAllBooks.filter((i: any) => condition(i, searchWord)).map((i: any) =>
                         <Book
                             key={i.id}
-                            id={i.id}
-                            name={i.name}
-                            UTFName={i.utfname}
+                            book={i}
                             userId={props.userInfo.id}
                             pimp={pimp}
-                            imageName={i.image}
                             showBookSettings={showBookSettings}
                             searchWord={searchWord}
                         />)

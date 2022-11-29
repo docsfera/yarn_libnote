@@ -13,6 +13,7 @@ const GET_ALL_BOOKS = gql`
         getAllBooks(userid: $userid){
             id
             name
+            utfname
             image
         }
     }
@@ -55,12 +56,14 @@ const NewBooks = () => {
                                  alt=""
                                  key={i.id}
                                  className="image"
-                                 onClick={()=>navigate(`/pdf-viewer/${userInfo.id}`, {state: {name: i.name}})}/>
+                                 onClick={()=>navigate(`/pdf-viewer/${userInfo.id}`,
+                                     {state: {book: i}})}/>
                                 : <img src="/images/non-found-book.png" /// todo: another component
                                        alt=""
                                        key={i.id}
                                        className="image"
-                                       onClick={()=>navigate(`/pdf-viewer/${userInfo.id}`, {state: {name: i.name}})}/> //TODO: another onclick
+                                       onClick={()=>navigate(`/pdf-viewer/${userInfo.id}`,
+                                           {state: {book: i}})}/> //TODO: another onclick
                         )}
                     </div>
                 </div>

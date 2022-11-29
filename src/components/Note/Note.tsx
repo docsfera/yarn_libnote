@@ -11,7 +11,7 @@ type NoteProps = {
     noteName: string
     noteContent: string
     dateUpdate: string
-    deleteNoteEvent?: any
+    deleteNoteEvent: any
     goToNoteCreator?: any
     searchWord?: string
     getNoteCreatorComponentEvent?: any
@@ -49,19 +49,23 @@ const Note: React.FC<NoteProps> = (props) => {
 
 
     const noteClickEvent = () => {
+        console.log('here_0')
         if(!props.currentNoteData || !props.currentNoteData.noteId ){
+            console.log('here_1')
             props.goToNoteCreator && props.goToNoteCreator(props.noteId)
             props.getNoteCreatorComponentEvent
             && props.getNoteCreatorComponentEvent(props.noteName, props.noteContent, props.bookId, props.folderId, props.noteId)
         }
 
         if(props.currentNoteData && props.currentNoteData.noteId !== props.noteId){
+            console.log('here_2')
             props.goToNoteCreator && props.goToNoteCreator(props.noteId)
             props.getNoteCreatorComponentEvent
             && props.getNoteCreatorComponentEvent(props.noteName, props.noteContent, props.bookId, props.folderId, props.noteId)
         }
 
         if(props.currentNoteData && props.currentNoteData.noteId && props.currentNoteData.noteId === props.noteId){ // Если выбирается заметка которая является текущей (редактируется)
+            console.log('here_3')
             props.getNoteCreatorComponentEvent
             && props.getNoteCreatorComponentEvent(props.currentNoteData.noteName,
                 props.currentNoteData.noteContent, props.currentNoteData.bookId,

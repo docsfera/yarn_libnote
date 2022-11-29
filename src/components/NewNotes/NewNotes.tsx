@@ -8,6 +8,7 @@ import SectionInfo from "../SectionInfo/SectionInfo"
 import {getPathToNoteCreate} from "../../Functions"
 import ButtonCreate from "../ButtonCreate/ButtonCreate"
 import useDeleteNoteEvent from "../../Functions/deleteNoteEvent"
+import NotesComponent from "../NotesComponent/NotesComponent";
 
 const GET_ALL_NOTES = gql`
     query getAllNotes($userid: ID) {
@@ -27,6 +28,7 @@ type NewNotesType = {
 
 
 const NewNotes: React.FC<NewNotesType> = (props) => {
+
     const [notesData, setNotesData] = useState<any>([])
     useEffect(() => {
         setNotesData(props.getAllNotesQuery.data)
@@ -49,20 +51,7 @@ const NewNotes: React.FC<NewNotesType> = (props) => {
             </div>
 
             <div className="notes">
-                {(notesData && notesData.getAllNotes)
-                    && notesData.getAllNotes.map((i: any) =>
-                        <Note noteId={i.id}
-                              key={i.id}
-                              folderId={i.folderid}
-                              bookId={i.bookid}
-                              noteContent={i.content}
-                              dateUpdate={i.dateupdate}
-                              noteName={i.title}
-                              refetchNotes={refetch}
-                              goToNoteCreator={goToNoteCreator}
-                        />)
-                }
-
+                <NotesComponent goToNoteCreator={goToNoteCreator} />
             </div>
         </div>
     );

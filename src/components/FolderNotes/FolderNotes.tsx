@@ -4,6 +4,8 @@ import {useQuery, gql, useMutation} from "@apollo/client"
 import {useNavigate, useParams} from "react-router-dom"
 import Note from "../Note/Note"
 import ButtonCreate from "../ButtonCreate/ButtonCreate";
+import NotesComponent from "../NotesComponent/NotesComponent";
+import {getPathToNoteCreate} from "../../Functions";
 
 //TODO: dont repeat yourself
 const GET_NOTES_BY_FOLDER = gql` 
@@ -11,13 +13,13 @@ const GET_NOTES_BY_FOLDER = gql`
         getNotesByFolder(folderid: $folderid) {
             id
             title
-            
             content
+            folderid
+            bookid
             dateupdate
         }
     }
 `
-
 const GET_FOLDER_BY_ID = gql` 
     query getFolderById($id: ID){
         getFolderById(id: $id) {
@@ -26,9 +28,6 @@ const GET_FOLDER_BY_ID = gql`
         }
     }
 `
-
-//updateFolderName(folderid: ID, name: String): Folder
-
 const UPDATE_FOLDER_NAME = gql` 
     mutation updateFolderName($id: ID, $name: String){
         updateFolderName(id: $id, name: $name) {
@@ -37,8 +36,6 @@ const UPDATE_FOLDER_NAME = gql`
         }
     }
 `
-
-
 const FolderNotes = () => {
     const {id} = useParams()
     const [updateFolderName] = useMutation(UPDATE_FOLDER_NAME)
@@ -55,15 +52,13 @@ const FolderNotes = () => {
     }, [currentFolder])
 
     const [folderName, setFolderName] = useState("")
-
-
     const navigate = useNavigate()
 
+    //TODO withGoToNoteCreator???
+
+    const goToNoteCreator = (noteId?: string) => navigate(getPathToNoteCreate(noteId), {state: {folderId: id}})
 
 
-    const goToNoteCreator = () => {
-        navigate(`/note-creator`, {state: {folderId: id}})
-    }
     const renameFolderEvent = async (name: string) => { //TODO: а если имя не изменилось?
         setFolderName(name)
         await updateFolderName(
@@ -72,7 +67,7 @@ const FolderNotes = () => {
                     id, name
                 }
             })
-        currentFolderRefetch()
+        await currentFolderRefetch()
     }
 
     return (
@@ -87,15 +82,7 @@ const FolderNotes = () => {
                 </div>
                 <ButtonCreate name="Создать заметку" onClick={() => goToNoteCreator()}/>
             </div>
-
-
-            {data && data.getNotesByFolder.map((i: any) =>
-                <Note noteId={i.id}
-                      folderId={id}
-                      noteName={i.title}
-                      noteContent={i.content}
-                      dateUpdate={i.dateupdate}/>)
-            }
+            <NotesComponent data={data?.getNotesByFolder} goToNoteCreator={goToNoteCreator}/>
         </div>
     )
 };

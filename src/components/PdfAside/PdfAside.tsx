@@ -1,8 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState} from 'react'
 import "./PdfAside.sass"
 import cn from 'classnames/dedupe'
-import {gql, useQuery} from "@apollo/client";
-import Note from "../Note/Note";
+import {gql, useQuery} from "@apollo/client"
+import NotesComponent from "../NotesComponent/NotesComponent"
+import ButtonCreate from "../ButtonCreate/ButtonCreate";
 
 const GET_ALL_NOTES = gql`
     query getAllNotes($userid: ID) {
@@ -32,7 +33,6 @@ type PdfAsideType = {
 
 const PdfAside: React.FC<PdfAsideType> = (props) => {
 
-    const { loading, data, error, refetch} = useQuery(GET_ALL_NOTES, {variables: {userid: props.userId}})
     const [searchWord, setSearchWord] = useState("")
 
     const condition = (note: any, searchWord: string) => {
@@ -42,32 +42,36 @@ const PdfAside: React.FC<PdfAsideType> = (props) => {
         }
     }
 
-    const getNoteCreatorComponentEvent = (noteName: string, noteContent: string, bookId: string, folderId: string, noteId: string) => {
+    const getNoteCreatorComponentEvent = (
+        noteName: string, noteContent: string, bookId: string | null, folderId: string | null, noteId: string | null) => {
+
         !props.isShowNoteCreator && props.setIsShowNoteCreator(!props.isShowNoteCreator)
+        console.log('here')
         props.setCurrentNoteData({name: noteName, content: noteContent, bookId, folderId, noteId})
         !props.isShowSmokeWindow && props.setIsShowSmokeWindow(!props.isShowSmokeWindow)
         props.setIsShowAside(!props.isShowAside)
     }
 
+    const noteCreateEvent = () => {
+        getNoteCreatorComponentEvent("Untitled", "", null, null, null)
+    }
+
 
     return (
         <aside className={cn("book-aside", {"book-aside-active": props.isShowAside})} >
-            <input type="text" className="book-aside-input" value={searchWord} onChange={(e) => setSearchWord(e.target.value)}/>
+            <div className="book-aside-settings">
+                <ButtonCreate name="Новая заметка" onClick={noteCreateEvent} />
+                <input type="text" className="book-aside-input" value={searchWord} onChange={(e) => setSearchWord(e.target.value)}/>
+            </div>
 
-            {
-                data && data.getAllNotes.filter((i: any) => condition(i, searchWord)).map((i: any) =>
-                    <Note noteId={i.id}
-                          folderId={i.folderid}
-                          bookId={i.bookid}
-                          noteName={i.title}
-                          noteContent={i.content}
-                          dateUpdate={i.dateupdate}
-                          searchWord={searchWord}
-                          getNoteCreatorComponentEvent={getNoteCreatorComponentEvent}
-                          currentNoteData={props.currentNoteData}/>
-                )
-            }
 
+            <NotesComponent
+                getNoteCreatorComponentEvent={getNoteCreatorComponentEvent}
+                searchWord={searchWord}
+                currentNoteData={props.currentNoteData}
+                condition={condition}
+                isShowNoteCreator={props.isShowNoteCreator}
+            />
         </aside>
     );
 };

@@ -30,12 +30,22 @@ const PdfViewer = () => {
     const navigate = useNavigate()
     const {userId} = useParams()
     const { state } = useLocation() //TODO: any
+    console.log({state})
 
     const [isShowAside, setIsShowAside] = useState(false)
     const [isShowNoteCreator, setIsShowNoteCreator] = useState(false)
 
-    const [currentNoteData, setCurrentNoteData] = useState({name: "Untitled",
-        content: "", bookId: undefined, folderId: undefined, noteId: undefined})
+    const [currentNoteData, setCurrentNoteData] = useState(
+        {
+            name: "Untitled",
+            content: "",
+            bookId: undefined,
+            bookName: undefined,
+            folderId: undefined,
+            folderName: undefined,
+            noteId: undefined
+        })
+
 
     const containerRef = useRef(null)
     const refPdfViewer = useRef(null)
@@ -56,8 +66,8 @@ const PdfViewer = () => {
         const CMAP_PACKED = true
         //let DEFAULT_URL = "../../files/somefile5.pdf"
         //console.log((data && data.getBookById) && `http://localhost:3000/files/${id}/${data.getBookById.name}`)
-        let DEFAULT_URL = `http://localhost:3000/files/${userId}/${state.name}`
-        console.log({DEFAULT_URL})
+
+        let DEFAULT_URL = `http://localhost:3000/files/${userId}/${state.book.utfname}`
         const SEARCH_FOR = ""; // try 'Mozilla'
         const eventBus = new pdfjsViewer.EventBus()
 
@@ -198,12 +208,20 @@ const PdfViewer = () => {
         // }
     }
 
+    const onCopyEvent = (e) => {
+        console.log({e, text: e.clipboardData.getData('text')})
+
+        //e.target.outerHTML = e.target.innerText
+        console.log(window.getSelection())
+        //e.clipboardData.setData('text/plain', 'foo')
+    }
+
 
     return (
         <>
 
-            <div ref={containerRef} id="viewerContainer">
-                <div id="pageContainer" className="pdfViewer"></div>
+            <div ref={containerRef} id="viewerContainer" >
+                <div id="pageContainer" className="pdfViewer" onCopy={(e) => onCopyEvent(e)} onSelect={(e) => console.log({select: e})}> </div>
             </div>
 
             <div className="exit fixed-button" onClick={() => navigate(-1)}> </div>
@@ -231,6 +249,7 @@ const PdfViewer = () => {
             {isShowNoteCreator && <NoteCreatorComponent id={userId}
                                                         currentNoteData={currentNoteData}
                                                         setCurrentNoteData={setCurrentNoteData}
+                                                        book={state.book}
                                                         />}
             {isShowSmokeWindow && <div className="smoke"> </div>}
 
