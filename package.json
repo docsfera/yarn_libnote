@@ -76,7 +76,6 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/express-fileupload": "^1.4.1",
     "@types/jsonwebtoken": "^8.5.9",
-    "@types/pg": "^8.6.5",
-    
+    "@types/pg": "^8.6.5"
   }
 }
