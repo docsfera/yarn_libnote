@@ -19,6 +19,7 @@
     "express": "^4.18.2",
     "express-graphql": "^0.12.0",
     "express-validator": "^6.14.2",
+    "express-fileupload": "^1.4.0",
     "graphql": "^16.6.0",
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^8.5.1",
@@ -37,7 +38,6 @@
     "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"
   },
-
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -69,8 +69,14 @@
     ]
   },
   "devDependencies": {
+    "@types/cors": "^2.8.12",
     "@types/express": "^4.17.14",
     "@types/express-validator": "^3.0.0",
-    "@types/styled-components": "^5.1.26"
+    "@types/styled-components": "^5.1.26",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/express-fileupload": "^1.4.1",
+    "@types/jsonwebtoken": "^8.5.9",
+    "@types/pg": "^8.6.5",
+    
   }
 }
