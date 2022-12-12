@@ -25,21 +25,21 @@ import fs from "fs";
 
 
 const Pool = pg.Pool
-const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'libnote',
-    password: 'tankionline',
-    port: 5432,
-});
-
 // const pool = new Pool({
 //     user: 'postgres',
-//     host: 'containers-us-west-75.railway.app',
-//     database: 'railway',
-//     password: 'JPCNSobjAxF9K7JvrMXu',
-//     port: 6260,
+//     host: 'localhost',
+//     database: 'libnote',
+//     password: 'tankionline',
+//     port: 5432,
 // });
+
+const pool = new Pool({
+    user: 'postgres',
+    host: 'containers-us-west-75.railway.app',
+    database: 'railway',
+    password: 'JPCNSobjAxF9K7JvrMXu',
+    port: 6260,
+});
 
 const schema = buildSchema(`
     type User{
