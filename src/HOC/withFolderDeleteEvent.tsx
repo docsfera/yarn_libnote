@@ -1,5 +1,5 @@
-import React from 'react'
-import {gql, useMutation, useQuery} from "@apollo/client";
+import React, {useState} from 'react'
+import {gql, useMutation} from "@apollo/client"
 
 const DELETE_FOLDER_BY_ID = gql`
     mutation deleteFolderById($id: ID) {
@@ -8,31 +8,24 @@ const DELETE_FOLDER_BY_ID = gql`
         }
     }
 `
-const GET_NOTES_BY_FOLDER = gql`
-    query getNotesByFolder($folderid: ID) {
-        getNotesByFolder(folderid: $folderid){
-            id
-        }
-    }
-` //TODO: FolderId!!! getAllNotes???
 
 const withFolderDeleteEvent= (Component: any) => {
     function WithDelete(props: any) {
         const [deleteFolderById] = useMutation(DELETE_FOLDER_BY_ID)
-        const { loading, data, error, refetch} = useQuery(GET_NOTES_BY_FOLDER, {variables: {folderid: "1"}})
+        const [isLoadingDeleteFolder, setIsLoadingDeleteFolder] = useState(false)
         const deleteFolderEvent = async () => {
+            setIsLoadingDeleteFolder(true)
             await deleteFolderById(
                 {
                     variables: {
                         id: props.folder.id
                     }
                 })
-            data && data.getNotesByFolder.map((i: any) => {
 
-            })
-            props.refetchFolders()
+            await props.refetchFolders()
+            setIsLoadingDeleteFolder(false)
         }
-        return <Component deleteFolderEvent={deleteFolderEvent} {...props} />
+        return <Component deleteFolderEvent={deleteFolderEvent} isLoading={isLoadingDeleteFolder} {...props} />
     }
     return WithDelete
 }

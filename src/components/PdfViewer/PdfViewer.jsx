@@ -246,15 +246,18 @@ const PdfViewer = () => {
                       setIsShowSmokeWindow={setIsShowSmokeWindow}
                       userId={userId}/>
 
-            {isShowNoteCreator && <NoteCreatorComponent id={userId}
-                                                        currentNoteData={currentNoteData}
-                                                        setCurrentNoteData={setCurrentNoteData}
-                                                        book={state.book}
-                                                        />}
+            {isShowNoteCreator &&
+            <NoteCreatorComponent
+                id={userId}
+                currentNoteData={currentNoteData}
+                setCurrentNoteData={setCurrentNoteData}
+                book={state.book}
+            />}
+
             {isShowSmokeWindow && <div className="smoke"> </div>}
 
         </>
-    );
-};
+    )
+}
 
-export default PdfViewer;
+export default PdfViewer

@@ -4,7 +4,8 @@ import './NoteCreator.sass'
 import {gql, useMutation, useQuery} from "@apollo/client"
 import {useLocation, useNavigate, useParams} from "react-router-dom"
 import {AuthContext} from "../../AuthProvider"
-import ButtonSave from "../ButtonSave/ButtonSave";
+import ButtonQuery from "../ButtonQuery/ButtonQuery"
+import {BookType, CurrentNoteType} from "../../types/types"
 
 const GET_ALL_FOLDERS = gql`
     query getAllFolders($userid: ID) {
@@ -61,9 +62,9 @@ const UPDATE_FOLDER_COUNT_NOTES = gql`
 
 type NoteCreatorType = {
     isShowHeader?: boolean
-    currentNoteData?: any
+    currentNoteData?: CurrentNoteType
     setCurrentNoteData?: any
-    book?: any
+    book?: BookType
 }
 
 const NoteCreator: React.FC<NoteCreatorType> = (props) => {
@@ -85,11 +86,11 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
 
     const [noteName, setNoteName] = useState("Untitled")
     const [noteContent, setNoteContent] = useState("")
-    const [beginFolderId, setBeginFolderId] = useState(null)
+    const [beginFolderId, setBeginFolderId] = useState<string | undefined>(undefined)
     const [nameSelectedFolder, setNameSelectedFolder] = useState("")
     const [nameSelectedBook, setNameSelectedBook] = useState("")
-    const [idSelectedFolder, setIdSelectedFolder] = useState<string | null>(null)
-    const [idSelectedBook, setIdSelectedBook] = useState<string | null>(null)
+    const [idSelectedFolder, setIdSelectedFolder] = useState<string | undefined>(undefined)
+    const [idSelectedBook, setIdSelectedBook] = useState<string | undefined>(undefined)
 
 
     const [isCreateLoading, setIsCreateLoading] = useState(false)
@@ -150,7 +151,7 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
         }
 
         // Если обрабатывается заметка pdfViewer
-        if(props.currentNoteData){
+        if(props.currentNoteData) {
             console.log('here3', props.currentNoteData)
             setNoteName(props.currentNoteData.name)
             setNoteContent(props.currentNoteData.content)
@@ -166,12 +167,11 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
                 setNameSelectedFolder(props.currentNoteData.folderName)
             }else{
                 if(allFolders?.getAllFolders){
+                    const currentFolderId = props.currentNoteData.folderId
                     const folder = allFolders.getAllFolders.filter((i: any) =>
-                        (i.id === props.currentNoteData.folderId))[0]
-                    //folder && console.log({folder})
+                        (i.id === currentFolderId))[0]
                     folder && setNameSelectedFolder(folder.name)
                 }
-
             }
 
             //Book
@@ -182,21 +182,16 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
                 setPathToImageSelectedBook(`/files/${userInfo.id}/${props.book.image}`)
             }else{
                 setIdSelectedBook(props.currentNoteData.bookId)
-
-                if(props.currentNoteData.bookName){ // новая заметка
+                const currentBookId = props.currentNoteData.bookId
+                const book = dataBooks.getAllBooks.filter((i: any) =>
+                    (i.id === currentBookId))[0]
+                if(props.currentNoteData.bookName) { // новая заметка
                     setNameSelectedBook(props.currentNoteData.bookName)
-                }else{ // заметка из pdfAside
-                    if(dataBooks?.getAllBooks){
-                        const book = dataBooks.getAllBooks.filter((i: any) =>
-                            (i.id === props.currentNoteData.bookId))[0]
-                        book && setNameSelectedBook(book.name)
-                    }
-
+                }else if (dataBooks?.getAllBooks) { // заметка из pdfAside
+                    book && setNameSelectedBook(book.name)
                 }
 
                 if(dataBooks?.getAllBooks){
-                    const book = dataBooks.getAllBooks.filter((i: any) =>
-                        (i.id === props.currentNoteData.bookId))[0]
                     book?.image && setPathToImageSelectedBook(`/files/${userInfo.id}/${book.image}`)
                 }
             }
@@ -245,7 +240,7 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
     const selectCurrentFolder = (e: React.MouseEvent<Element, MouseEvent>, idSelectedFolder: string, nameSelectedFolder: string) => {
         const {target} = e
         const nameFolder = target ? (target as HTMLDivElement).innerText : " "
-        if(allFolder && allFolder.current){
+        if(allFolder && allFolder.current && props.currentNoteData){
             console.log({nameFolder, idSelectedFolder})
             setNameSelectedFolder(nameFolder)
             setIdSelectedFolder(idSelectedFolder)
@@ -270,7 +265,7 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
     const selectCurrentBook = (e: React.MouseEvent<Element, MouseEvent>, idSelectedBook: string, nameSelectedBook: string) => {
         const {target} = e
         const nameBook = target ? (target as HTMLDivElement).innerText : " "
-        if (allBooks && allBooks.current) {
+        if (allBooks && allBooks.current && props.currentNoteData) {
             setNameSelectedBook(nameBook)
             setIdSelectedBook(idSelectedBook)
             console.log({idSelectedBook, nameBook})
@@ -325,7 +320,6 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
 
 
             } else if (!id && props.currentNoteData && props.currentNoteData.noteId){
-            console.log('ne pon', {cur: props.currentNoteData.folderid, fold: idSelectedFolder})
                 await updateNote(
                     {
                         variables: {
@@ -350,7 +344,7 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
 
             } else {
             console.log("whyhere?", idSelectedFolder, beginFolderId)
-                const noteId = id || props.currentNoteData.noteId
+                const noteId = id || props?.currentNoteData?.noteId
                 await updateNote(
                     {
                         variables: {
@@ -394,8 +388,8 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
     }
 
     const blurNoteContentEvent = (htmlContent: string) => {
-        setNoteContent(htmlContent)
-        props.setCurrentNoteData && props.setCurrentNoteData(
+        setNoteContent(htmlContent);
+        (props.setCurrentNoteData && props.currentNoteData) && props.setCurrentNoteData(
             {
                 name: props.currentNoteData.name,
                 content: htmlContent,
@@ -409,8 +403,8 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
     }
     const blurNoteNameEvent = (htmlContent: string) => {
         console.log(htmlContent)
-        setNoteName(htmlContent)
-        props.setCurrentNoteData && props.setCurrentNoteData(
+        setNoteName(htmlContent);
+        (props.setCurrentNoteData && props.currentNoteData) && props.setCurrentNoteData(
             {
                 name: htmlContent,
                 content: props.currentNoteData.content,
@@ -423,12 +417,7 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
         )
     }
 
-    const dontUseEnter = (e: any) => {
-        if(e.key === "Enter"){
-            console.log("enter")
-            e.preventDefault()
-        }
-    }
+    const dontUseEnter = (e: any) => (e.key === "Enter") && e.preventDefault()
 
     const onPasteEvent = (e: any) => {
         //e.preventDefault();
@@ -500,7 +489,13 @@ const NoteCreator: React.FC<NoteCreatorType> = (props) => {
                     </div>
 
                     <img src={pathToImageSelectedBook} alt="" className="image"/>
-                    <ButtonSave name="Сохранить" callBack={createNoteEvent} isLoading={isCreateLoading}/>
+                    <ButtonQuery
+                        type="Create"
+                        name="Сохранить"
+                        callBack={createNoteEvent}
+                        isLoading={isCreateLoading}
+                        width={250}
+                    />
                 </div>
 
 

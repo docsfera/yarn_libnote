@@ -3,6 +3,7 @@ import "./UserSettings.sass"
 import Header from "../Header/Header"
 import {AuthContext} from "../../AuthProvider"
 import {gql, useMutation} from "@apollo/client";
+import ButtonQuery from "../ButtonQuery/ButtonQuery";
 
 const UPDATE_USER_NAME = gql`
     mutation updateUserName($id: ID, $name: String){
@@ -19,9 +20,6 @@ const UPDATE_USER_PASSWORD = gql`
     }
 `
 
-
-
-
 const UserSettings = () => {
     const {userInfo, setNewUserName, onLogout} = React.useContext(AuthContext)
     const [userName, setUserName] = useState(userInfo.mail)
@@ -30,12 +28,17 @@ const UserSettings = () => {
     const [newUserPassword, setNewUserPassword] = useState("")
     const [confirmNewPassword, setConfirmNewPassword] = useState("")
 
+    const [isLoadingChangePassword, setIsLoadingChangePassword] = useState(false)
+    const [isLoadingUpdateUserName, setIsLoadingUpdateUserName] = useState(false)
+
     const [updateUserName] = useMutation(UPDATE_USER_NAME)
     const [updateUserPassword] = useMutation(UPDATE_USER_PASSWORD)
 
     const updateUserNameEvent = async () => {
+        setIsLoadingUpdateUserName(true)
         await updateUserName({variables: { id: userInfo.id, name: userName}})
         setNewUserName(userName)
+        setIsLoadingUpdateUserName(false)
         //navigate("../books")
     }
 
@@ -43,6 +46,7 @@ const UserSettings = () => {
 
         // setIsLoginError(false)
         // setIsPasswordError(false)
+        setIsLoadingChangePassword(true)
 
         const formData = new FormData()
         formData.append('id', userInfo.id)
@@ -60,6 +64,7 @@ const UserSettings = () => {
                 console.log('okkkkk')
                 setErrorMessage("")
                 await updateUserPassword({variables: {id: userInfo.id, password: newUserPassword}})
+                setIsLoadingChangePassword(false)
             }
         })
         //     .then(async errors =>  {
@@ -99,7 +104,13 @@ const UserSettings = () => {
                            value={userName}
                            onChange={(e) => setUserName(e.target.value)}
                     />
-                    <button className="button button-save" onClick={updateUserNameEvent}>Сохранить</button>
+                    <ButtonQuery
+                        type="Create"
+                        width={150}
+                        name="Сохранить"
+                        callBack={updateUserNameEvent}
+                        isLoading={isLoadingUpdateUserName}
+                    />
 
                     <p className="user-name">Старый пароль</p>
                     <input type="text"
@@ -119,8 +130,20 @@ const UserSettings = () => {
                            value={confirmNewPassword}
                            onChange={(e) => setConfirmNewPassword(e.target.value)}
                     />
-                    <button className="button button-pass button-save" onClick={changePasswordEvent}>Изменить пароль</button>
-                    <button className="button button-exit" onClick={onLogout}>Выход</button>
+                    <ButtonQuery
+                        type="Create"
+                        width={220}
+                        name="Изменить пароль"
+                        callBack={changePasswordEvent}
+                        isLoading={isLoadingChangePassword}
+                    />
+
+                    <ButtonQuery
+                        type="Exit"
+                        width={150}
+                        name="Выход"
+                        callBack={onLogout}
+                    />
 
                 </div>
             </div>

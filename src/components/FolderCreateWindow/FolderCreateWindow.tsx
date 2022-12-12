@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {gql, useMutation} from "@apollo/client";
 import "./FolderCreateWindow.sass"
 import {AuthContext} from "../../AuthProvider";
+import ButtonQuery from "../ButtonQuery/ButtonQuery";
 
 const CREATE_FOLDER = gql`
     mutation createFolder($input: FolderInput){
@@ -19,6 +20,7 @@ type FolderCreator = {
 const FolderCreateWindow: React.FC<FolderCreator> = (props) => {
     const {hideSmokeWindow, showSmokeWindow, userInfo} = React.useContext(AuthContext)
     const [nameCreatedFolder, setNameCreatedFolder] = useState("")
+    const [isCreateLoading, setIsCreateLoading] = useState(false)
 
     const [createFolder] = useMutation(CREATE_FOLDER)
 
@@ -33,6 +35,7 @@ const FolderCreateWindow: React.FC<FolderCreator> = (props) => {
     }
 
     const createFolderEvent = async () => {
+        setIsCreateLoading(true)
         await createFolder(
             {
                 variables: {
@@ -46,6 +49,7 @@ const FolderCreateWindow: React.FC<FolderCreator> = (props) => {
         props.setIsShowFolderCreator(false)
         hideSmokeWindow()
         setNameCreatedFolder("")
+        setIsCreateLoading(false)
         props.refetch()
     }
 
@@ -61,8 +65,14 @@ const FolderCreateWindow: React.FC<FolderCreator> = (props) => {
                        onChange={(e) => setNameCreatedFolder(e.target.value)}
                 />
                 <div className="buttons">
-                    <button className="button button-exit" onClick={exitFromCreateFolderWindow}>Отмена</button>
-                    <button className="button button-create" onClick={createFolderEvent}>Создать</button>
+                    <ButtonQuery type="Exit" width={150} name="Отмена" callBack={exitFromCreateFolderWindow}/>
+                    <ButtonQuery
+                        type="Create"
+                        width={150}
+                        name="Создать"
+                        callBack={createFolderEvent}
+                        isLoading={isCreateLoading}
+                    />
                 </div>
 
             </div>

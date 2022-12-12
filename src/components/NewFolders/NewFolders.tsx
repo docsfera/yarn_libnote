@@ -7,7 +7,8 @@ import {NavLink, useNavigate} from "react-router-dom"
 import FolderCreateWindow from "../FolderCreateWindow/FolderCreateWindow";
 import SectionInfo from "../SectionInfo/SectionInfo";
 import {AuthContext} from "../../AuthProvider";
-import ButtonCreate from "../ButtonCreate/ButtonCreate";
+import ButtonCreate from "../ButtonCreate/ButtonCreate"
+import {FolderType} from "../../types/types"
 
 
 const GET_ALL_FOLDERS = gql`
@@ -20,7 +21,7 @@ const GET_ALL_FOLDERS = gql`
     }
 `
 
-const GGGG = gql`
+const GET_NOTES_BY_FOLDER = gql`
     query getNotesByFolder($folderid: ID) {
         getNotesByFolder(folderid: $folderid){
             id
@@ -37,22 +38,24 @@ const NewFolders: React.FC<FoldersType> = (props) => {
     useEffect(() => {refetch()}, [props.numOfNotes])
     const navigate = useNavigate()
     const [isShowFolderCreator, setIsShowFolderCreator] = useState(false)
-    const { loading, data, error, refetch} = useQuery(GET_ALL_FOLDERS, {variables: {userid: props.userInfo.id}})
+
+    const { loading, data, error, refetch} = useQuery<{ getAllFolders: FolderType[] }>
+        (GET_ALL_FOLDERS, {variables: {userid: props.userInfo.id}})
 
     const [position, setPosition] = useState(0)
 
     const showFolderNotes = (id: string) => {
-        navigate(`/folder-notes/${id}`)
+        navigate(`/folder-notes/${id}`, {state: {refetch}})
     }
 
-    let folderCount
+    let folderCount: number
     data ? folderCount = data.getAllFolders.length : folderCount = 0
-    const gg = useRef(null)
-    const folderSection = useRef(null)
+    const foldersContainer = useRef<HTMLDivElement>(null)
+    const folderSection = useRef<HTMLDivElement>(null)
     const folderWidth = 200
 
-    const useGetCountNotesByFolder = (folderId: any) => {
-        const { data} = useQuery(GGGG, {variables: {folderId}})
+    const useGetCountNotesByFolder = (folderId: string) => {
+        const { data } = useQuery(GET_NOTES_BY_FOLDER, {variables: {folderId}})
         if(data && data.getNotesByFolder) {
             return data.getNotesByFolder.length
         }else{
@@ -60,53 +63,67 @@ const NewFolders: React.FC<FoldersType> = (props) => {
         }
     }
 
+    console.log(loading)
+
     return (
         <div className="folders-section" ref={folderSection}>
-            {isShowFolderCreator && <FolderCreateWindow setIsShowFolderCreator={setIsShowFolderCreator} refetch={refetch}/>}
+            {isShowFolderCreator
+                && <FolderCreateWindow setIsShowFolderCreator={setIsShowFolderCreator} refetch={refetch}/>
+            }
 
             <div className="folders-wrapper">
-                <SectionInfo nameSection="Folders" sectionCount={folderCount} isLink={true}/>
+                <SectionInfo nameSection="Folders" sectionCount={loading ? "..." : folderCount} isLink={true}/>
                 <ButtonCreate name="Создать папку" onClick={() => setIsShowFolderCreator(true)}/>
             </div>
 
             <div className="folders">
-                <Arrow gg={gg}
+                <Arrow sectionContainer={foldersContainer?.current}
                        position={position}
                        elementWidth={folderWidth}
                        setPosition={setPosition}
-                       currentSection={folderSection}
+                       currentSection={folderSection?.current}
                        sectionCount={folderCount}
                        isLeftArrow={true}
                        maxCountToShow={4}
                 />
 
                 <div className="folders-container">
-                    <div ref={gg} className="itemser">
-                        {data
-                            ? data.getAllFolders.map( (i: any) =>
-                                <Folder folder={i}
-                                        key={i.id}
-                                        useGetCountNotesByFolder={useGetCountNotesByFolder}
-                                        showFolderNotes={showFolderNotes}
-                                        refetchFolders={refetch}
-                                />) // TODO: any
-                            : " "
+                    <div ref={foldersContainer} className="itemser">
+
+                        {loading &&
+                            <>
+                                <div className="folder-skeleton"> </div>
+                                <div className="folder-skeleton"> </div>
+                                <div className="folder-skeleton"> </div>
+                                <div className="folder-skeleton"> </div>
+                            </>
+                        }
+
+
+                        {data?.getAllFolders && data.getAllFolders.map( (i) =>
+                            <Folder
+                                folder={i}
+                                key={i.id}
+                                useGetCountNotesByFolder={useGetCountNotesByFolder}
+                                showFolderNotes={showFolderNotes}
+                                refetchFolders={refetch}
+                            />)
                         }
                     </div>
 
                 </div>
-                <Arrow gg={gg}
+                <Arrow sectionContainer={foldersContainer?.current}
                        position={position}
                        elementWidth={folderWidth}
                        setPosition={setPosition}
-                       currentSection={folderSection}
+                       currentSection={folderSection?.current}
                        sectionCount={folderCount}
                        isLeftArrow={false}
                        maxCountToShow={4}
                 />
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default NewFolders;
+export default NewFolders

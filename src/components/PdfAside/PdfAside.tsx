@@ -4,6 +4,7 @@ import cn from 'classnames/dedupe'
 import {gql, useQuery} from "@apollo/client"
 import NotesComponent from "../NotesComponent/NotesComponent"
 import ButtonCreate from "../ButtonCreate/ButtonCreate";
+import {CurrentNoteType, NoteType} from "../../types/types";
 
 const GET_ALL_NOTES = gql`
     query getAllNotes($userid: ID) {
@@ -22,12 +23,11 @@ type PdfAsideType = {
     isShowAside: boolean
     isShowNoteCreator: boolean
     isShowSmokeWindow: boolean
-    setIsShowNoteCreator: any
+    setIsShowNoteCreator: (value: (((prevState: boolean) => boolean) | boolean)) => void
     setCurrentNoteData: any
-    setIsShowSmokeWindow: any
-    setIsShowAside: any
-
-    currentNoteData: any
+    setIsShowSmokeWindow: (value: (((prevState: boolean) => boolean) | boolean)) => void
+    setIsShowAside:  (value: (((prevState: boolean) => boolean) | boolean)) => void
+    currentNoteData: CurrentNoteType
     userId: string
 }
 
@@ -35,7 +35,7 @@ const PdfAside: React.FC<PdfAsideType> = (props) => {
 
     const [searchWord, setSearchWord] = useState("")
 
-    const condition = (note: any, searchWord: string) => {
+    const condition = (note: NoteType, searchWord: string) => {
         if(note.title.toLowerCase().includes(searchWord.toLowerCase())
             || note.content.toLowerCase().includes(searchWord.toLowerCase())){
             return note
@@ -43,17 +43,16 @@ const PdfAside: React.FC<PdfAsideType> = (props) => {
     }
 
     const getNoteCreatorComponentEvent = (
-        noteName: string, noteContent: string, bookId: string | null, folderId: string | null, noteId: string | null) => {
+        noteName: string, noteContent: string, bookId?: string, folderId?: string, noteId?: string) => {
 
         !props.isShowNoteCreator && props.setIsShowNoteCreator(!props.isShowNoteCreator)
-        console.log('here')
         props.setCurrentNoteData({name: noteName, content: noteContent, bookId, folderId, noteId})
         !props.isShowSmokeWindow && props.setIsShowSmokeWindow(!props.isShowSmokeWindow)
         props.setIsShowAside(!props.isShowAside)
     }
 
     const noteCreateEvent = () => {
-        getNoteCreatorComponentEvent("Untitled", "", null, null, null)
+        getNoteCreatorComponentEvent("Untitled", "", undefined, undefined, undefined)
     }
 
 
@@ -63,7 +62,6 @@ const PdfAside: React.FC<PdfAsideType> = (props) => {
                 <ButtonCreate name="Новая заметка" onClick={noteCreateEvent} />
                 <input type="text" className="book-aside-input" value={searchWord} onChange={(e) => setSearchWord(e.target.value)}/>
             </div>
-
 
             <NotesComponent
                 getNoteCreatorComponentEvent={getNoteCreatorComponentEvent}

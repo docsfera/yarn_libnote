@@ -2,64 +2,51 @@ import React, {useEffect, useRef, useState} from 'react'
 import "./Folder.sass"
 import withFolderDeleteEvent from "../../HOC/withFolderDeleteEvent"
 import withSearchMark from "../../HOC/withSearchMark"
+import cn from "classnames"
+import DeleteIcon from "../DeleteIcon/DeleteIcon"
+import {FolderType} from "../../types/types"
 
-type FolderType = {
-    folder: any //TODO: any
-    useGetCountNotesByFolder: any
-    deleteFolderEvent: any
+type FolderComponentType = {
+    folder: FolderType
+    isLoading: boolean
     searchWord?: string
-    refetchFolders?: any
-    showFolderNotes?: any
-    insertMarkHTML: any
+
+    insertMarkHTML: (componentName: string, searchWord: string | undefined) => string
+    useGetCountNotesByFolder: (folderId: string) => number
+    deleteFolderEvent: () => void
+    refetchFolders?: () => void
+    showFolderNotes?: (id: string) => void
 }
 
-const Folder: React.FC<FolderType> = (props) => {
-    const settingsItems = useRef<HTMLDivElement>(null)
+const Folder: React.FC<FolderComponentType> = (props) => {
     const folderNameRef = useRef<HTMLParagraphElement>(null)
-    const showSettingsItems = () => {
-        if(settingsItems && settingsItems.current) {
-            if(settingsItems.current.style.cssText == ""){
-                settingsItems.current.style.display = "block"
-            }else{
-                if(settingsItems.current.style.display !== "none"){
-                    settingsItems.current.style.display = "none"
-                }else{
-                    settingsItems.current.style.display = "block"
-                }
-            }
-        }
-    }
-
+    const [isHover, setIsHover] = useState(false)
 
     useEffect(() => {
         if(folderNameRef && folderNameRef.current ){
             folderNameRef.current.innerHTML = props.insertMarkHTML(props.folder.name, props.searchWord)
         }
-
     }, [props.searchWord])
 
+    const showFolderNotes = () => props.showFolderNotes && props.showFolderNotes(props.folder.id)
 
     return (
-        <div className="folder">
+        <div className={cn("folder", {"folder-loading": props.isLoading})}
+             onMouseOver={() => setIsHover(true)}
+             onMouseOut={() => setIsHover(false)}>
             <div className="folder-info">
                 <div className="folder-count">{props.folder.countofnotes}</div>
-                <div className="folder-settings">
-                    <div className="ovals" onClick={showSettingsItems}>
-                        <div className="oval"> </div>
-                        <div className="oval"> </div>
-                        <div className="oval"> </div>
-                    </div>
-                    <div ref={settingsItems} className="settings-items">
-                        {/*<div className="settings-item">Rename</div>*/}
-                        <div className="settings-item" onClick={props.deleteFolderEvent}>Delete</div>
-                    </div>
-
-                </div>
+                <DeleteIcon
+                    type="Folder"
+                    isLoading={props.isLoading}
+                    callback={props.deleteFolderEvent}
+                    isHover={isHover}
+                />
             </div>
-            <div className="folder-image" onClick={() => props.showFolderNotes(props.folder.id)}> </div>
+            <div className="folder-image" onClick={showFolderNotes}> </div>
             <p ref={folderNameRef} className="folder-name"> </p>
         </div>
-    );
-};
+    )
+}
 
 export default withFolderDeleteEvent(withSearchMark(Folder))

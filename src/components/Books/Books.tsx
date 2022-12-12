@@ -55,6 +55,8 @@ const Books: React.FC<BooksType> = (props) => {
     const {data, refetch} = useQuery(GET_ALL_BOOKS, {variables:{userid: props.userInfo.id}, pollInterval: 500})
     const [saveBase64] = useMutation(SAVE_BASE_64)
 
+    const [isBookLoading, setIsBookLoading] = useState(false)
+
     const refCanvas = useRef(null)
     const smokeWindow = useRef<HTMLDivElement>(null) // TODO: create component
 
@@ -121,22 +123,8 @@ const Books: React.FC<BooksType> = (props) => {
         navigate(`../pdf-viewer/${props.userInfo.id}`, {state: {book}}) // TODO: useQuery(getBookByID)???
     }
 
-    // const exitFromCreateFolderWindow = () => {
-    //     if(createFolderWindow && createFolderWindow.current && props.smokeWindow && props.smokeWindow.current){
-    //         createFolderWindow.current.style.display = "none"
-    //         props.smokeWindow.current.style.display = "none"
-    //         setNameCreatedFolder("")
-    //     }
-    // }
-    //
-    // const showCreateFolderWindow = () => {
-    //     if(createFolderWindow && createFolderWindow.current && props.smokeWindow && props.smokeWindow.current){
-    //         createFolderWindow.current.style.display = "flex"
-    //         props.smokeWindow.current.style.display = "block"
-    //     }
-    // }
-
     const uploadFile = (file: any) => {
+        setIsBookLoading(true)
         let formData = new FormData()
 
         const UTFName = cyrillicToTranslit.transform(file.name, "_")
@@ -148,8 +136,9 @@ const Books: React.FC<BooksType> = (props) => {
             method: 'POST',
             body: formData
         })
-            .then((e) => console.log('then'))
+            .then((e) => setIsBookLoading(false))
             .catch((e) => console.log('catch', e))
+        setIsBookLoading(false)
     }
 
     const changeUploadFile = (e: any) => {
@@ -200,6 +189,13 @@ const Books: React.FC<BooksType> = (props) => {
                             searchWord={searchWord}
                         />)
                     }
+
+                    {isBookLoading &&
+                        <div className="loading-book">
+                            5
+                        </div>
+                    }
+
                     <div id="drop-area"
                          ref={dropArea}
                          onDragEnter={go}
@@ -209,6 +205,8 @@ const Books: React.FC<BooksType> = (props) => {
 
                         <input type="file" id="fileElem" accept="application/pdf" onChange={(e) => changeUploadFile(e)}/>
                     </div>
+
+
                 </div>
 
                 <canvas ref={refCanvas} width="570" height="760" className="canvas"></canvas>

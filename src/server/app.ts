@@ -8,6 +8,11 @@ import path from "path"
 import {body, validationResult} from "express-validator"
 import jwt from "jsonwebtoken"
 import { default as bcrypt } from "bcryptjs"
+import { fileURLToPath } from 'url'
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 
 
@@ -20,21 +25,21 @@ import fs from "fs";
 
 
 const Pool = pg.Pool
-// const pool = new Pool({
-//     user: 'postgres',
-//     host: 'localhost',
-//     database: 'libnote',
-//     password: 'tankionline',
-//     port: 5432,
-// });
-
 const pool = new Pool({
     user: 'postgres',
-    host: 'containers-us-west-75.railway.app',
-    database: 'railway',
-    password: 'JPCNSobjAxF9K7JvrMXu',
-    port: 6260,
+    host: 'localhost',
+    database: 'libnote',
+    password: 'tankionline',
+    port: 5432,
 });
+
+// const pool = new Pool({
+//     user: 'postgres',
+//     host: 'containers-us-west-75.railway.app',
+//     database: 'railway',
+//     password: 'JPCNSobjAxF9K7JvrMXu',
+//     port: 6260,
+// });
 
 const schema = buildSchema(`
     type User{
@@ -138,11 +143,20 @@ const schema = buildSchema(`
 `)
 
 const app = express()
+
+app.use(express.static(path.join(__dirname, '../../../build')));
+
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname+'../../../build/index.html'));
+});
+
 app.use(cors())
 app.use(fileUpload())
 
 app.use(express.json({limit: '25mb'}));
 app.use(express.urlencoded({limit: '25mb'}));
+
+
 
 const root = {
 
@@ -408,9 +422,10 @@ app.post('/registration',
                         console.log(data.id)
                         fs.mkdirSync(`D:/libnote/libnote/public/files/${data.id}`)
                     }
+                    return res.status(200).json({message: "ok", userId: data.id, mail: data.mail});
                 })
 
-                return res.status(200).json({message: "ok"});
+
             }
         }catch (e) {
             return res.status(401).json({message: "Server Error"})
@@ -510,8 +525,26 @@ app.use('/graphql', graphqlHTTP({
     }
 ))
 
+
+// app.use(express.static(path.join(__dirname, '../../../build')));
+//
+// app.get('/', function (req, res) {
+//     res.sendFile(path.join(__dirname+'../../../build/index.html'));
+// });
+
+// app.get('/', function (req, res) {
+//     res.sendFile(path.join("C:/Users/Admin/Desktop/index.html"));
+// });
+
+// app.use(express.static(path.join(__dirname)));
+//
+// app.get('/', function (req, res) {
+//     res.sendFile(path.join("D:/libnote/libnote/build/index.html"));
+// });
+
+
 app.set('port', process.env.PORT || 3001)
 
 const server = app.listen(app.get('port'), function() {
-    console.log('listening');
+    console.log('listening', __dirname);
 });

@@ -5,10 +5,10 @@ import SectionInfo from "../SectionInfo/SectionInfo"
 import {gql, useQuery} from "@apollo/client"
 import {useNavigate} from "react-router-dom"
 import {AuthContext} from "../../AuthProvider"
-import Book from "../Book/Book";
-import Folder from "../Folder/Folder";
-import ButtonCreate from "../ButtonCreate/ButtonCreate";
-import FolderCreateWindow from "../FolderCreateWindow/FolderCreateWindow";
+import Folder from "../Folder/Folder"
+import ButtonCreate from "../ButtonCreate/ButtonCreate"
+import FolderCreateWindow from "../FolderCreateWindow/FolderCreateWindow"
+import {FolderType} from "../../types/types"
 
 const GET_ALL_FOLDERS = gql`
     query getAllFolders($userid: ID) {
@@ -34,7 +34,7 @@ const Folders = () => {
     const [isShowFolderCreator, setIsShowFolderCreator] = useState(false)
     const navigate = useNavigate()
 
-    const { loading, data, error, refetch} = useQuery(GET_ALL_FOLDERS, {variables: {userid: userInfo.id}})
+    const { loading, data, error, refetch} = useQuery<{getAllFolders: FolderType[]}>(GET_ALL_FOLDERS, {variables: {userid: userInfo.id}})
 
     useEffect( () => { refetch() }, [])
     // TOdo: дождаться резульата хочу(баг с переименованием папки) (через then? or loading)
@@ -51,15 +51,13 @@ const Folders = () => {
         }
     }
 
-    const condition = (folder: any, searchWord: string) => {
+    const condition = (folder: FolderType, searchWord: string) => {
         if(folder.name.toLowerCase().includes(searchWord.toLowerCase())){
             return folder
         }
     }
 
-    const showFolderNotes = (id: string) => {
-        navigate(`/folder-notes/${id}`)
-    }
+    const showFolderNotes = (id: string) => navigate(`/folder-notes/${id}`)
 
     return (
         <div>
@@ -72,7 +70,7 @@ const Folders = () => {
                 </div>
 
                 <div className="folders">
-                    {data && data.getAllFolders.filter((i: any) => condition(i, searchWord)).map((i: any) =>
+                    {data && data.getAllFolders.filter((i) => condition(i, searchWord)).map((i) =>
                         <Folder folder={i}
                                 key={i.id}
                                 useGetCountNotesByFolder={useGetCountNotesByFolder}

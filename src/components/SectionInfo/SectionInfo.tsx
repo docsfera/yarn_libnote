@@ -4,8 +4,8 @@ import {NavLink} from "react-router-dom"
 
 type SectionInfoType = {
     nameSection: "Books" | "Notes" | "Folders"
-    sectionCount: number
-    isLink?: true // TODO: мб есть другой вариант
+    sectionCount: number | string
+    isLink?: true
 }
 
 const SectionInfo: React.FC<SectionInfoType> = (props) => {
@@ -23,7 +23,7 @@ const SectionInfo: React.FC<SectionInfoType> = (props) => {
                 : <p className="name-section">{nameSectionRu[props.nameSection][0]}</p>}
             <p className="section-count">{`Всего ${nameSectionRu[props.nameSection][1]}: ${props.sectionCount}`}</p>
         </div>
-    );
-};
+    )
+}
 
-export default SectionInfo;
+export default SectionInfo

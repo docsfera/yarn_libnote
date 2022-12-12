@@ -4,6 +4,7 @@ import "./BookSettings.sass"
 import {gql, useMutation, useQuery} from "@apollo/client";
 import Header from "../Header/Header";
 import {AuthContext} from "../../AuthProvider";
+import ButtonQuery from "../ButtonQuery/ButtonQuery";
 
 const GET_BOOK_BY_ID = gql`
     query getBookById($id: ID){
@@ -61,6 +62,8 @@ const BookSettings = () => {
     const [bookNameUTF, setBookNameUTF] = useState("")
     const [bookImageName, setBookImageName] = useState("")
 
+    const [isLoadingUpdateBook, setIsLoadingUpdateBook] = useState(false)
+
     useEffect(() => {
         if(data && data.getBookById){
             setBookName(data.getBookById.name)
@@ -75,7 +78,9 @@ const BookSettings = () => {
         navigate("../books")
     }
     const updateBookEvent = async () => {
+        setIsLoadingUpdateBook(true);
         (data.getBookById.name !== bookName) && await updateBookName({variables: {id, name: bookName}})
+        setIsLoadingUpdateBook(false)
         navigate("../books")
     }
     const getCountNotesByBook = () => {
@@ -101,7 +106,19 @@ const BookSettings = () => {
                     <p className="book-name">Имя книги на сервере</p>
                     <input type="text" className="book-name-input" placeholder={bookNameUTF} readOnly/>
                     <div className="buttons">
-                        <button className="button button-exit" onClick={() => navigate(-1)}>Отмена</button>
+                        <ButtonQuery
+                            type="Exit"
+                            width={150}
+                            name="Отмена"
+                            callBack={() => navigate(-1)}
+                        />
+                        <ButtonQuery
+                            type="Create"
+                            width={150}
+                            name="Сохранить"
+                            callBack={updateBookEvent}
+                            isLoading={isLoadingUpdateBook}
+                        />
                         <button className="button button-create" onClick={updateBookEvent}>Сохранить</button>
                     </div>
                 </div>

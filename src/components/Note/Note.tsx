@@ -1,9 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react'
 import "./Note.sass"
-import * as cn from "classnames"
+import cn from "classnames"
 import withNoteDeleteEvent from "../../HOC/withNoteDeleteEvent"
-import withSearchMark from "../../HOC/withSearchMark";
-// TODO: type of function!
+import withSearchMark from "../../HOC/withSearchMark"
+import DeleteIcon from "../DeleteIcon/DeleteIcon"
+import {NoteType} from "../../types/types"
+import {ApolloQueryResult, OperationVariables} from "@apollo/client"
+
 type NoteProps = {
     noteId: string
     folderId?: string
@@ -11,13 +14,28 @@ type NoteProps = {
     noteName: string
     noteContent: string
     dateUpdate: string
-    deleteNoteEvent: any
-    goToNoteCreator?: any
+    deleteNoteEvent: () => void
+    goToNoteCreator?: (noteId?: string) => void
     searchWord?: string
-    getNoteCreatorComponentEvent?: any
-    refetchNotes: any
+    getNoteCreatorComponentEvent?: (noteName: string,
+                                    noteContent: string,
+                                    bookId?: string,
+                                    folderId?: string,
+                                    noteId?: string) => void
+    refetchNotes: (variables?: (Partial<OperationVariables> | undefined)) => Promise<ApolloQueryResult<{getAllNotes: NoteType[]}>>
     insertMarkHTML: any
-    currentNoteData?: any
+
+    currentNoteData?: {
+        name: string,
+        content: string,
+        bookId: string | undefined,
+        bookName: string | undefined,
+        folderId: string | undefined,
+        folderName: string | undefined,
+        noteId: string | undefined
+    }
+
+    isLoading: boolean
 }
 
 const Note: React.FC<NoteProps> = (props) => {
@@ -33,6 +51,7 @@ const Note: React.FC<NoteProps> = (props) => {
     const noteNameRef = useRef<HTMLDivElement>(null)
     const noteContentRef = useRef<HTMLDivElement>(null)
     const [isClicked, setIsClicked] = useState(true)
+    const [isHover, setIsHover] = useState(false)
 
 
     useEffect(() => {
@@ -40,13 +59,10 @@ const Note: React.FC<NoteProps> = (props) => {
             noteNameRef.current.innerHTML = props.insertMarkHTML(props.noteName, props.searchWord)
             noteContentRef.current.innerHTML = props.insertMarkHTML(props.noteContent, props.searchWord)
         }
-
         if(props.noteId && props.currentNoteData && props.currentNoteData.noteId){
             (props.noteId === props.currentNoteData.noteId) ? setIsClicked(false) : setIsClicked(true)
         }
-
     }, [props])
-
 
     const noteClickEvent = () => {
         console.log('here_0')
@@ -67,19 +83,31 @@ const Note: React.FC<NoteProps> = (props) => {
         if(props.currentNoteData && props.currentNoteData.noteId && props.currentNoteData.noteId === props.noteId){ // Если выбирается заметка которая является текущей (редактируется)
             console.log('here_3')
             props.getNoteCreatorComponentEvent
-            && props.getNoteCreatorComponentEvent(props.currentNoteData.noteName,
-                props.currentNoteData.noteContent, props.currentNoteData.bookId,
+            && props.getNoteCreatorComponentEvent(props.currentNoteData.name,
+                props.currentNoteData.content, props.currentNoteData.bookId,
                 props.currentNoteData.folderId, props.currentNoteData.noteId)
         }
     }
 
+    const deleteNoteEvent = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation()
+        props.deleteNoteEvent()
+    }
+
     return (
-        //@ts-ignore
-        <div className={cn("note", {"not-clicked": !isClicked})} onClick={noteClickEvent} >
-            <div className="delete-note" onClick={(e) => {
-                e.stopPropagation();
-                props.deleteNoteEvent(props.noteId, props.folderId)
-            }}> </div>
+        <div className={cn("note", {"not-clicked": !isClicked, "loading": props.isLoading})}
+             onClick={noteClickEvent}
+             onMouseOver={() => setIsHover(true)}
+             onMouseOut={() => setIsHover(false)}
+        >
+
+            <DeleteIcon
+                type="Note"
+                isLoading={props.isLoading}
+                callback={deleteNoteEvent}
+                isHover={isHover}
+            />
+
             <div className="note-wrapper">
                 <div className="note-info">
                     <p ref={noteNameRef} className="note-name"> </p>

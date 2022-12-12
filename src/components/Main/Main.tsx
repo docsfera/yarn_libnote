@@ -1,19 +1,12 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useEffect} from 'react'
 import "./Main.sass"
 import Header from "../Header/Header"
 import NewFolders from "../NewFolders/NewFolders"
 import NewBooks from "../NewBooks/NewBooks"
 import NewNotes from "../NewNotes/NewNotes"
 import {AuthContext} from "../../AuthProvider"
-import {useQuery, gql, useMutation} from '@apollo/client'
-
-const DELETE_NOTE_BY_ID = gql`
-      mutation deleteNoteById($noteid: ID) {
-        deleteNoteById(noteid: $noteid){
-            id
-        }
-    }
-`
+import {useQuery, gql} from '@apollo/client'
+import {NoteType} from "../../types/types"
 
 const GET_ALL_NOTES = gql`
     query getAllNotes($userid: ID) {
@@ -30,14 +23,10 @@ const GET_ALL_NOTES = gql`
 
 const Main = () => {
     const {userInfo} = React.useContext(AuthContext)
-    const getAllNotesQuery = useQuery(GET_ALL_NOTES, {variables: {userid: userInfo.id}})
+    const {data, loading, refetch} = useQuery<{getAllNotes: NoteType[]}>(GET_ALL_NOTES, {variables: {userid: userInfo.id}})
 
-    useEffect(() => {
-        getAllNotesQuery.refetch()
-    }, [])
-    const numOfNotes: any = (getAllNotesQuery.data && getAllNotesQuery.data.getAllNotes) && getAllNotesQuery.data.getAllNotes.length
-
-    //TODO: как типизировать data, data.getAllNotes?
+    useEffect(() => { refetch() }, [])
+    const numOfNotes = data?.getAllNotes.length
 
     return (
         <div>
@@ -45,7 +34,7 @@ const Main = () => {
             <div className="main">
                 <NewFolders numOfNotes={numOfNotes} userInfo={userInfo}/>
                 <NewBooks/>
-                <NewNotes getAllNotesQuery={getAllNotesQuery}/>
+                <NewNotes data={data} isLoading={loading}/>
             </div>
         </div>
     )

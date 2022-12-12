@@ -50,6 +50,14 @@ const Registration: React.FC<RegistrationType> = (props) => {
                 errors.message.includes("Password") && setIsPasswordError(true)
                 if(errors.message.includes("ok")) {
                     setErrorMessage("")
+                    console.log(errors)
+                    token.onLogin(
+                        {
+                            id: errors.userId,
+                            mail: errors.mail,
+                            token: "token"
+                        })
+                }
                     // await createUser({variables: {input: {mail: userName, password: userPassword}}})
                     //  .then((res) => {
                     //      token.onLogin({
@@ -58,9 +66,9 @@ const Registration: React.FC<RegistrationType> = (props) => {
                     //          token: "token"
                     //      }).catch(() => alert("Что-то пошло не так"))
                     //  })
-                }
-            })
-    }
+                })
+        }
+
 
     return (
             <div className="auth-inputs">

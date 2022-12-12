@@ -3,7 +3,7 @@ import "./ButtonCreate.sass"
 
 type ButtonCreateType = {
     name: string
-    onClick: any
+    onClick: () => void
 }
 
 const ButtonCreate: React.FC<ButtonCreateType> = (props) => {
@@ -11,7 +11,7 @@ const ButtonCreate: React.FC<ButtonCreateType> = (props) => {
         <button className="button-create" onClick={props.onClick}>
             {props.name}
         </button>
-    );
-};
+    )
+}
 
 export default ButtonCreate
